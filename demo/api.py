@@ -81,7 +81,6 @@ def create_order(store_id: str, order: Order):
                     raise HTTPException(status_code=400, detail="Not enough stock")
                 item.quantity -= order_item.quantity
 
-
     for store in stores:
         if store.id == store_id:
             order.store_id = store_id
@@ -113,7 +112,7 @@ def update_order(store_id: str, order_id: str, order: Order):
             merged_data["status"] = order.status
             merged = Order(**merged_data)
             orders[i] = merged
-            return order
+            return orders[i]
     raise HTTPException(status_code=404, detail="Order not found")
 
 def close_expired_orders():
