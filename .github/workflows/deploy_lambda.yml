@@ -1,0 +1,44 @@
+name: Deploy AWS Lambda
+
+on:
+  push:
+    branches:
+      - main  # Change this if needed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install AWS CLI
+      run: |
+        sudo apt update
+        sudo apt install -y awscli
+
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements.txt -t lambda
+        cd lambda && zip -r ../lambda_function.zip .
+
+    - name: Deploy to AWS Lambda
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+      run: |
+        FUNCTIONS=("lambda1" "lambda2" "lambda3")
+        for FUNCTION in "${FUNCTIONS[@]}"; do
+          aws lambda update-function-code \
+            --function-name "$FUNCTION" \
+            --zip-file fileb://lambda_functions.zip \
+            --region $AWS_REGION
+          echo "✅ Updated $FUNCTION"
+        done
