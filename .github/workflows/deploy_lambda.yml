@@ -27,7 +27,7 @@ jobs:
         FUNCTIONS=("items" "orders" "stores")
         for FUNCTION in "${FUNCTIONS[@]}"; do
           pip install -r requirements.txt -t lambda/$FUNCTION
-          zip -r "$FUNCTION.zip" "./lambda/$FUNCTION"
+          zip -r $FUNCTION.zip ./lambda/$FUNCTION/*
           aws lambda update-function-code \
             --function-name "$FUNCTION" \
             --zip-file fileb://$FUNCTION.zip \
