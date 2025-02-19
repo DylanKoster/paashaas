@@ -24,7 +24,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
       run: |
-        FUNCTIONS=("items" "orders" "stores")
+        FUNCTIONS=($(ls -d lambda/*/ | xargs -n 1 basename))
         for FUNCTION in "${FUNCTIONS[@]}"; do
           pip install -r requirements.txt -t lambda/$FUNCTION
           cd lambda/$FUNCTION
