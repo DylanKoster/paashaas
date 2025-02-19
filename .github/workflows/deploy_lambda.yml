@@ -29,6 +29,7 @@ jobs:
           pip install -r requirements.txt -t lambda/$FUNCTION
           ls
           (cd lambda/$FUNCTION && zip -r $FUNCTION.zip .)
+          ls
           aws lambda update-function-code \
             --function-name "$FUNCTION" \
             --zip-file fileb://$FUNCTION.zip \
