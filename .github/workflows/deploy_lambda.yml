@@ -29,11 +29,12 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_REGION: ${{ secrets.AWS_REGION }}
       run: |
-        FUNCTIONS=("lambda1" "lambda2" "lambda3")
+        FUNCTIONS=("items" "orders" "stores")
         for FUNCTION in "${FUNCTIONS[@]}"; do
+          zip -r "$FUNCTION.zip" "lambda/$FUNCTION"
           aws lambda update-function-code \
             --function-name "$FUNCTION" \
-            --zip-file fileb://lambda_functions.zip \
+            --zip-file fileb://$FUNCTION.zip \
             --region $AWS_REGION
           echo "✅ Updated $FUNCTION"
         done
