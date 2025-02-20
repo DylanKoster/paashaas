@@ -49,6 +49,71 @@ Resources:
           Properties:
             Path: /stores
             Method: post
+      Policies:
+        - DynamoCrudPolicy:
+          TableName: !Ref Stores
+    Environment:
+      TABLE_NAME: !Ref Stores
+
+  # Stores Table
+  StoresTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Stores
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: store_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: store_id
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+
+  # Items Table (Stores Inventory & Order Items)
+  ItemsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Items
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: store_id
+          AttributeType: S
+        - AttributeName: item_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: store_id
+          KeyType: HASH
+        - AttributeName: item_id
+          KeyType: RANGE
+      SSESpecification:
+        SSEEnabled: true
+      GlobalSecondaryIndexes:
+        - IndexName: ItemTypeIndex
+          KeySchema:
+            - AttributeName: item_type
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  # Orders Table
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Orders
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: store_id
+          AttributeType: S
+        - AttributeName: order_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: store_id
+          KeyType: HASH
+        - AttributeName: order_id
+          KeyType: RANGE
+      SSESpecification:
+        SSEEnabled: true
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
