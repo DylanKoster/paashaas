@@ -1,0 +1,350 @@
+openapi: 3.0.0
+info:
+  title: Store API
+  version: 1.0.0
+  description: API for managing stores, items, and orders.
+paths:
+  /stores/:
+    get:
+      summary: Get all stores
+      operationId: getStores
+      responses:
+        "200":
+          description: A list of stores
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Store"
+    post:
+      summary: Create a new store
+      operationId: createStore
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Store"
+      responses:
+        "201":
+          description: The created store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+
+  /stores/{store_id}:
+    get:
+      summary: Get a store by ID
+      operationId: getStore
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+        "404":
+          description: Store not found
+
+    put:
+      summary: Update a store by ID
+      operationId: updateStore
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Store"
+      responses:
+        "200":
+          description: The updated store
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Store"
+        "404":
+          description: Store not found
+
+  /stores/{store_id}/items/:
+    post:
+      summary: Create a new item in a store
+      operationId: createItem
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItem"
+      responses:
+        "201":
+          description: The created item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "404":
+          description: Store not found
+
+    get:
+      summary: Get all items in a store
+      operationId: getItems
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of items in the store
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+
+  /stores/{store_id}/items/{item_id}:
+    get:
+      summary: Get an item by ID in a store
+      operationId: getItem
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+        - name: item_id
+          in: path
+          required: true
+          description: The ID of the item
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "404":
+          description: Item not found
+
+    put:
+      summary: Update an item by ID in a store
+      operationId: updateItem
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+        - name: item_id
+          in: path
+          required: true
+          description: The ID of the item
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItem"
+      responses:
+        "200":
+          description: The updated item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "404":
+          description: Item not found
+
+  /stores/{store_id}/orders/:
+    post:
+      summary: Create a new order in a store
+      operationId: createOrder
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        "201":
+          description: The created order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Store not found
+
+    get:
+      summary: Get all orders in a store
+      operationId: getOrders
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+      responses:
+        "200":
+          description: A list of orders in the store
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /stores/{store_id}/orders/{order_id}:
+    get:
+      summary: Get an order by ID in a store
+      operationId: getOrder
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+        - name: order_id
+          in: path
+          required: true
+          description: The ID of the order
+          schema:
+            type: string
+      responses:
+        "200":
+          description: The requested order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+
+    put:
+      summary: Update an order by ID in a store
+      operationId: updateOrder
+      parameters:
+        - name: store_id
+          in: path
+          required: true
+          description: The ID of the store
+          schema:
+            type: string
+        - name: order_id
+          in: path
+          required: true
+          description: The ID of the order
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Order"
+      responses:
+        "200":
+          description: The updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Order not found
+
+components:
+  schemas:
+    Store:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        img:
+          type: string
+        quantity:
+          type: integer
+        store_id:
+          type: string
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        store_id:
+          type: string
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              item_id:
+                type: string
+              quantity:
+                type: integer
+        status:
+          type: string
+        expiry_date:
+          type: string
+          format: date-time
+
+    OrderItem:
+      type: object
+      properties:
+        item_id:
+          type: string
+        quantity:
+          type: integer
