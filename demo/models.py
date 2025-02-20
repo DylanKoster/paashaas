@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field, field_validator, GetJsonSchemaHandler
-from pydantic.json_schema import JsonSchemaValue
+from pydantic import BaseModel, Field, field_validator
 from bson import ObjectId
 from datetime import datetime, timedelta
 
