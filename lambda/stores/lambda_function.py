@@ -2,50 +2,78 @@ import json
 import boto3
 import uuid
 import os
+from boto3.dynamodb.conditions import Key
 
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(os.environ["DYNAMODB_TABLE"])
 
 def lambda_handler(event, context):
-    path = event.get("path", "")
-    method = event.get("httpMethod", "")
+    try:
+        path = event.get("path", "").strip("/")
+        method = event.get("httpMethod", "")
+        body = json.loads(event["body"]) if event.get("body") else None
 
-    if path == "/stores" and method == "GET":
-        return get_stores()
-    elif path.startswith("/stores/") and method == "GET":
-        store_id = path.split("/")[-1]
-        return get_store(store_id)
-    elif path == "/stores" and method == "POST":
-        body = json.loads(event["body"])
-        return create_store(body)
-    elif path.startswith("/stores/") and method == "PUT":
-            store_id = path.split("/")[-1]
-            body = json.loads(event["body"])
-            return update_store(store_id, body)
-    
-    return {"statusCode": 400, "body": json.dumps({"error": "Invalid request"})}
+        parts = path.split("/")
+        if parts[0] != "stores":
+            return error_response(400, "Invalid request")
+
+        if len(parts) == 1 and method == "GET":
+            return get_stores()
+        elif len(parts) == 2:
+            store_id = parts[1]
+            if method == "GET":
+                return get_store(store_id)
+            elif method == "PUT":
+                return update_store(store_id, body)
+        elif len(parts) == 1 and method == "POST":
+            return create_store(body)
+
+        return error_response(400, "Invalid request")
+    except Exception as e:
+        return error_response(500, str(e))
 
 def get_stores():
-    response = table.scan()
-    return {"statusCode": 200, "body": json.dumps(response.get("Items", []))}
+    try:
+        response = table.scan()
+        return success_response(200, response.get("Items", []))
+    except Exception as e:
+        return error_response(500, str(e))
 
 def get_store(store_id):
-    response = table.get_item(Key={"id": store_id})
-    if "Item" not in response:
-        return {"statusCode": 404, "body": json.dumps({"error": "Store not found"})}
-    return {"statusCode": 200, "body": json.dumps(response["Item"])}
+    try:
+        response = table.get_item(Key={"id": store_id})
+        if "Item" not in response:
+            return error_response(404, "Store not found")
+        return success_response(200, response["Item"])
+    except Exception as e:
+        return error_response(500, str(e))
 
 def create_store(store_data):
-    store_data["id"] = store_data.get("id", str(uuid.uuid4()))  # Auto-generate ID if missing
-    table.put_item(Item=store_data)
-    return {"statusCode": 201, "body": json.dumps(store_data)}
+    try:
+        store_data["id"] = store_data.get("id", str(uuid.uuid4()))
+        table.put_item(Item=store_data)
+        return success_response(201, store_data)
+    except Exception as e:
+        return error_response(500, str(e))
 
 def update_store(store_id, store_data):
-    response = table.update_item(
-        Key={"id": store_id},
-        UpdateExpression="SET #name = :name, #location = :location",
-        ExpressionAttributeNames={"#name": "name", "#location": "location"},
-        ExpressionAttributeValues={":name": store_data["name"], ":location": store_data["location"]},
-        ReturnValues="ALL_NEW"
-    )
-    return {"statusCode": 200, "body": json.dumps(response.get("Attributes", {}))}
+    try:
+        response = table.update_item(
+            Key={"id": store_id},
+            UpdateExpression="SET #name = :name, #location = :location",
+            ExpressionAttributeNames={"#name": "name", "#location": "location"},
+            ExpressionAttributeValues={
+                ":name": store_data["name"],
+                ":location": store_data["location"]
+            },
+            ReturnValues="ALL_NEW"
+        )
+        return success_response(200, response.get("Attributes", {}))
+    except Exception as e:
+        return error_response(500, str(e))
+
+def success_response(status_code, data):
+    return {"statusCode": status_code, "body": json.dumps(data)}
+
+def error_response(status_code, message):
+    return {"statusCode": status_code, "body": json.dumps({"error": message})}
