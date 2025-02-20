@@ -1,9 +1,6 @@
 name: Deploy AWS Lambda
 
-on:
-  push:
-    branches:
-      - main  # Change this if needed
+on: push
 
 jobs:
   deploy:
