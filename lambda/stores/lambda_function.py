@@ -41,7 +41,7 @@ def get_stores():
 
 def get_store(store_id):
     try:
-        response = table.get_item(Key={"id": store_id})
+        response = table.get_item(Key={"store_id": store_id})
         if "Item" not in response:
             return error_response(404, "Store not found")
         return success_response(200, response["Item"])
@@ -50,7 +50,7 @@ def get_store(store_id):
 
 def create_store(store_data):
     try:
-        store_data["id"] = store_data.get("id", str(uuid.uuid4()))
+        store_data["store_id"] = store_data.get("store_id", str(uuid.uuid4()))
         table.put_item(Item=store_data)
         return success_response(201, store_data)
     except Exception as e:
@@ -59,7 +59,7 @@ def create_store(store_data):
 def update_store(store_id, store_data):
     try:
         response = table.update_item(
-            Key={"id": store_id},
+            Key={"store_id": store_id},
             UpdateExpression="SET #name = :name, #location = :location",
             ExpressionAttributeNames={"#name": "name", "#location": "location"},
             ExpressionAttributeValues={
