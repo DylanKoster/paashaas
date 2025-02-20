@@ -1,0 +1,131 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Paas-Haas API
+
+  API for creating, removing, and altering stores, items and orders with PaaS-HaaS.
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  storesFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: stores/
+      Handler: stores.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        getStores:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /stores/{store_id}
+            Method: get
+        addStore:
+          Type: Api
+          Properties:
+            Path: /stores
+            Method: post
+        alterStore:
+          Type: Api
+          Properties:
+            Path: /stores/{store_id}
+            Method: put
+
+  itemsFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: items/
+      Handler: items.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        getAllItems:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /stores/{store_id}/items
+            Method: get
+        getItem:
+          Type: Api
+          Properties:
+            Path: /stores/{store_id}/items/{item_id}
+            Method: get
+        addItem:
+          Type: Api
+          Properties:
+            Path: /stores/{store_id}/items
+            Method: post
+        alterItem:
+          Type: Api
+          Properties:
+            Path: /stores/{store_id}/items/{item_id}
+            Method: put
+
+  ordersFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: orders/
+      Handler: orders.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        getAllOrders:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /stores/{store_id}/orders
+            Method: get
+        getOrder:
+          Type: Api
+          Properties:
+            Path: /stores/{store_id}/orders/{order_id}
+            Method: get
+        addOrder:
+          Type: Api
+          Properties:
+            Path: /stores/{store_id}/orders
+            Method: post
+        alterOrder:
+          Type: Api
+          Properties:
+            Path: /stores/{store_id}/orders/{order_id}
+            Method: put
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  storesApi:
+    Description: "API Gateway endpoint URL for Prod stage for stores function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"
+  storesFunction:
+    Description: "Stores Lambda Function ARN"
+    Value: !GetAtt storesFunction.Arn
+  storesIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt storesFunctionRole.Arn
+
+  itemsApi:
+    Description: "API Gateway endpoint URL for Prod stage for items function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/items/"
+  itemsFunction:
+    Description: "Items Lambda Function ARN"
+    Value: !GetAtt itemsFunction.Arn
+  itemsIamRole:
+    Description: "Implicit IAM Role created for the items function"
+    Value: !GetAtt itemsFunctionRole.Arn
+
+  ordersApi:
+    Description: "API Gateway endpoint URL for Prod stage for orders function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/orders/"
+  ordersFunction:
+    Description: "Items Lambda Function ARN"
+    Value: !GetAtt ordersFunction.Arn
+  ordersIamRole:
+    Description: "Implicit IAM Role created for the orders function"
+    Value: !GetAtt ordersFunctionRole.Arn
