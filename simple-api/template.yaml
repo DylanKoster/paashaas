@@ -49,9 +49,6 @@ Resources:
           Properties:
             Path: /stores
             Method: post
-      Policies:
-        - DynamoCrudPolicy:
-          TableName: !Ref Stores
     Environment:
       TABLE_NAME: !Ref Stores
 
