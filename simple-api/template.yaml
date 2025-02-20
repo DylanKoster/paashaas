@@ -30,6 +30,25 @@ Resources:
           Properties:
             Path: /hello
             Method: post
+  storesFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: stores/
+      Handler: stores.lambda_handler
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /stores
+            Method: get
+        HelloEcho:
+          Type: Api
+          Properties:
+            Path: /stores
+            Method: post
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -44,3 +63,12 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
+  storesApi:
+    Description: "API Gateway endpoint URL for Prod stage for stores function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"
+  storesFunction:
+    Description: "Stores Lambda Function ARN"
+    Value: !GetAtt storesFunction.Arn
+  storesIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt storesFunctionRole.Arn
