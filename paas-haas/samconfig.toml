@@ -3,7 +3,7 @@
 version = 0.1
 
 [default.global.parameters]
-stack_name = "simple-api"
+stack_name = "paas-haas"
 
 [default.build.parameters]
 cached = true
@@ -16,7 +16,7 @@ lint = true
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true
 resolve_s3 = true
-s3_prefix = "simple-api"
+s3_prefix = "paas-haas"
 region = "eu-west-1"
 disable_rollback = true
 image_repositories = []
