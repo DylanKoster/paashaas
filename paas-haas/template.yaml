@@ -5,14 +5,13 @@ Description: >
 
   API for creating, removing, and altering stores, items and orders with PaaS-HaaS.
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
 
 Resources:
   storesFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: stores/
       Handler: stores.lambda_handler
@@ -21,7 +20,7 @@ Resources:
         - x86_64
       Events:
         getStores:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /stores/{store_id}
             Method: get
@@ -37,7 +36,7 @@ Resources:
             Method: put
 
   itemsFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: items/
       Handler: items.lambda_handler
@@ -46,7 +45,7 @@ Resources:
         - x86_64
       Events:
         getAllItems:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /stores/{store_id}/items
             Method: get
@@ -67,7 +66,7 @@ Resources:
             Method: put
 
   ordersFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: orders/
       Handler: orders.lambda_handler
@@ -76,7 +75,7 @@ Resources:
         - x86_64
       Events:
         getAllOrders:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api
           Properties:
             Path: /stores/{store_id}/orders
             Method: get
