@@ -13,7 +13,7 @@ Resources:
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: stores/
+      CodeUri: lambda/stores/
       Handler: stores.lambda_handler
       Runtime: python3.13
       Architectures:
@@ -38,7 +38,7 @@ Resources:
   itemsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: items/
+      CodeUri: lambda/items/
       Handler: items.lambda_handler
       Runtime: python3.13
       Architectures:
@@ -68,7 +68,7 @@ Resources:
   ordersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: orders/
+      CodeUri: lambda/orders/
       Handler: orders.lambda_handler
       Runtime: python3.13
       Architectures:
