@@ -17,6 +17,8 @@ Resources:
       CodeUri: stores/
       Handler: stores.lambda_handler
       Runtime: python3.13
+      Layers:
+        - !Ref sharedLayer
       Architectures:
         - x86_64
       Policies:
@@ -98,6 +100,15 @@ Resources:
           Properties:
             Path: /stores/{store_id}/orders/{order_id}
             Method: put
+
+  sharedLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: sharedLayer
+      Description: Shared Python module
+      ContentUri: shared/
+      CompatibleRuntimes:
+        - python3.13
 
   StoresTable:
     Type: AWS::DynamoDB::Table
