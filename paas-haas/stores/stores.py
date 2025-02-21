@@ -3,7 +3,7 @@ import boto3
 from models import Store
 
 dynamodb = boto3.resource('dynamodb')
-stores_table = dynamodb.stores_table('Stores')
+stores_table = dynamodb.Table('Stores')
 
 def lambda_handler(event, context):
     if event['httpMethod'] == 'GET':
