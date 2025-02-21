@@ -17,13 +17,13 @@ jobs:
       - run: cd paas-haas && sam build --use-container
       - run: cd paas-haas && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --no-disable-rollback
 
-  # test:
-  #     needs: deploy
-  #     runs-on: ubuntu-latest
-  #     steps:
-  #       - uses: actions/checkout@v3
-  #       - uses: actions/setup-python@v3
-  #         with:
-  #           python-version: '3.13'
-  #       - run: python -m pip install -r tests/requirements.txt
-  #       - run: pytest tests/
+  test:
+      needs: deploy
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
+        - uses: actions/setup-python@v3
+          with:
+            python-version: '3.13'
+        - run: python -m pip install -r tests/requirements.txt
+        - run: pytest tests/
