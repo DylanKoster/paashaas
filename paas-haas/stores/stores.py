@@ -3,7 +3,7 @@ import boto3
 from models import Store
 
 dynamodb = boto3.resource('dynamodb')
-table = dynamodb.Table('Stores')
+stores_table = dynamodb.stores_table('Stores')
 
 def lambda_handler(event, context):
     if event['httpMethod'] == 'GET':
@@ -24,7 +24,7 @@ def lambda_handler(event, context):
 
 
 def get_store(store_id):
-    response = table.get_item(Key={'id': store_id})
+    response = stores_table.get_item(Key={'id': store_id})
     item = response.get('Item')
 
     if item:
@@ -42,7 +42,7 @@ def get_store(store_id):
 def add_store(body):
     try:
         store = Store.model_validate(body)
-        table.put_item(Item=store.model_dump())
+        stores_table.put_item(Item=store.model_dump())
         return {
             'statusCode': 200,
             'body': json.dumps(store.model_dump())
@@ -57,7 +57,7 @@ def add_store(body):
 def alter_store(store_id, body):
     try:
         store = Store.model_validate(body)
-        response = table.update_item(
+        response = stores_table.update_item(
             Key={'id': store_id},
             UpdateExpression="SET #name = :name, #location = :location",
             ExpressionAttributeNames={
