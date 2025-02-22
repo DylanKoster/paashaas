@@ -5,6 +5,8 @@
 */__pycache__
 *.zip
 
+.aws-sam/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -181,4 +183,4 @@ cython_debug/
 .pypirc
 
 # AWS Sam build files and dependencies
-*/.aws-sam/
+*/.aws-sam/*
