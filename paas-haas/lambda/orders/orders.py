@@ -36,14 +36,14 @@ def lambda_handler(event, context):
     if event['httpMethod'] == 'GET':
         return {
             'statusCode': 200,
-            'body': json.dumps('these are all the stores')
+            'body': json.dumps('these are all the orders')
         }
     elif event['httpMethod'] == 'POST':
         body = json.loads(event.get('body', '{}'))  # Parse the JSON body
         return {
             'statusCode': 200,
             'body': json.dumps({
-                'message': 'Hello, World! This is a POST request to stores.',
+                'message': 'Hello, World! This is a POST request to orders.',
                 'receivedData': body
             })
         }

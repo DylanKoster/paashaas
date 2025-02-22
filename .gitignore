@@ -183,4 +183,4 @@ cython_debug/
 .pypirc
 
 # AWS Sam build files and dependencies
-*/.aws-sam/
+*/.aws-sam/*

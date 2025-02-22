@@ -7,13 +7,13 @@ Description: >
 
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 30
 
 Resources:
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: stores/
+      CodeUri: lambda/stores/
       Handler: stores.lambda_handler
       Runtime: python3.13
       Layers:
@@ -43,7 +43,7 @@ Resources:
   itemsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: items/
+      CodeUri: lambda/items/
       Handler: items.lambda_handler
       Layers:
         - !Ref sharedLayer
@@ -78,7 +78,7 @@ Resources:
   ordersFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: orders/
+      CodeUri: lambda/orders/
       Handler: orders.lambda_handler
       Layers:
         - !Ref sharedLayer
@@ -115,7 +115,7 @@ Resources:
     Properties:
       LayerName: sharedLayer
       Description: Shared Python module
-      ContentUri: shared/
+      ContentUri: lambda/shared/
       CompatibleRuntimes:
         - python3.13
 
@@ -132,20 +132,20 @@ Resources:
       BillingMode: PAY_PER_REQUEST
 
   ItemsTable:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: Items
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-          - AttributeName: store_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-          - AttributeName: store_id
-            KeyType: RANGE
-        BillingMode: PAY_PER_REQUEST
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Items
+      AttributeDefinitions:
+        - AttributeName: id
+          AttributeType: S
+        - AttributeName: store_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: id
+          KeyType: HASH
+        - AttributeName: store_id
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
 
   OrdersTable:
     Type: AWS::DynamoDB::Table
