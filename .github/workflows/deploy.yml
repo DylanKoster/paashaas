@@ -18,26 +18,31 @@ jobs:
           if-no-files-found: error
 
   test:
-    services:
-      dynamodb:
-        image: amazon/dynamodb-local:2.0.0
-        ports:
-          - 8000:8000
-
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - uses: aws-actions/setup-sam@v2
-        with:
-          python-version: "3.13"
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
           name: sam-build
           path: paas-haas/.aws-sam
+
+      - uses: actions/setup-python@v3
+
+      - uses: aws-actions/setup-sam@v2
+        with:
+          python-version: "3.13"
+
+      - name: Setup DynamoDB Local
+        uses: rrainn/dynamodb-action@v2.0.1
+        with:
+          port: 8000
+          cors: "*"
+
+      - name: Create table
+        run: aws dynamodb create-table --endpoint-url http://localhost:8000
 
       - name: Run tests
         run: |
