@@ -14,6 +14,7 @@ jobs:
         with:
           name: sam-build
           path: paas-haas/.aws-sam/
+          retention-days: 1
 
   test:
     needs: build
