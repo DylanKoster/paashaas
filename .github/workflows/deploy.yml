@@ -8,13 +8,13 @@ jobs:
       - uses: aws-actions/setup-sam@v2
 
       - run: cd paas-haas && sam build
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: sam-build
-          path: .aws-sam/
+          path: ./paas-haas/.aws-sam/
           retention-days: 1
+          if-no-files-found: error
 
   test:
     needs: build
@@ -30,7 +30,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sam-build
-          path: .aws-sam/
+          path: ./paas-haas/.aws-sam/
 
       - name: Run tests
         run: |
