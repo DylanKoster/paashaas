@@ -42,7 +42,7 @@ jobs:
           cors: "*"
 
       - name: Create table
-        run: aws dynamodb create-table --endpoint-url http://localhost:8000
+        run: aws dynamodb create-table --table-name Stores --attribute-definitions AttributeName=id,AttributeType=S AttributeName=name,AttributeType=S AttributeName=location,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --endpoint-url http://localhost:8000
 
       - name: Run tests
         run: |
