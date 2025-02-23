@@ -31,7 +31,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sam-build
-          path: ./paashaas/paas-haas/.aws-sam
+          path: paas-haas/.aws-sam
 
       - name: Run tests
         run: |
