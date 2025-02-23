@@ -6,13 +6,14 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v3
       - uses: aws-actions/setup-sam@v2
-
       - run: cd paas-haas && sam build
+      - run: cd paas-haas && ls -al
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: sam-build
-          path: ./paashaas/paas-haas/.aws-sam/*
+          path: paas-haas/.aws-sam/
+          include-hidden-files: true
           retention-days: 1
           if-no-files-found: error
 
@@ -30,7 +31,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: sam-build
-          path: ./paashaas/paas-haas/.aws-sam/*
+          path: ./paashaas/paas-haas/.aws-sam
 
       - name: Run tests
         run: |
