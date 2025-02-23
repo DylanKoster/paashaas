@@ -3,7 +3,51 @@ on:
     branches:
       - main
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: aws-actions/setup-sam@v2
+
+      - run: cd paas-haas && sam build --use-container
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: sam-build
+          path: paas-haas/.aws-sam/
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v3
+      - uses: aws-actions/setup-sam@v2
+        with:
+          python-version: "3.13"
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: sam-build
+          path: paas-haas/.aws-sam/
+
+      - name: Run tests
+        run: |
+          cd paas-haas && sam local start-api > sam_api.log 2>&1 &
+
+          until curl -s http://localhost:3000/stores/; do
+            echo "Waiting for API to be up..."
+            sleep 5
+          done
+
+          python -m pip install -r tests/requirements.txt
+          pytest tests/
+
   deploy:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -14,16 +58,4 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
-      - run: cd paas-haas && sam build --use-container
       - run: cd paas-haas && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --no-disable-rollback
-
-  test:
-      needs: deploy
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-python@v3
-          with:
-            python-version: '3.13'
-        - run: python -m pip install -r tests/requirements.txt
-        - run: pytest tests/
