@@ -41,11 +41,8 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Setup DynamoDB Local
-        uses: rrainn/dynamodb-action@v2.0.1
-        with:
-          port: 8000
-          cors: "*"
+      - name: Setup local DynamoDB
+        run: docker run -p 8000:8000 amazon/dynamodb-local &
 
       - name: Create table
         run: aws dynamodb create-table --table-name Stores --attribute-definitions AttributeName=id,AttributeType=S --key-schema AttributeName=id,KeyType=HASH --endpoint-url http://localhost:8000
