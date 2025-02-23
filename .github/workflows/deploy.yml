@@ -18,6 +18,12 @@ jobs:
           if-no-files-found: error
 
   test:
+    services:
+      dynamodb:
+        image: amazon/dynamodb-local:2.0.0
+        ports:
+          - 8000:8000
+
     needs: build
     runs-on: ubuntu-latest
     steps:
