@@ -11,10 +11,6 @@ def lambda_handler(event, context):
         return get_store(store_id)
     elif event['httpMethod'] == 'POST':
         body = json.loads(event.get('body', '{}'))
-        return {
-            'statusCode': 200,
-            'body': ""
-        }
         return add_store(body)
     elif event['httpMethod'] == 'PUT':
         store_id = event.get('pathParameters', {}).get('store_id')
