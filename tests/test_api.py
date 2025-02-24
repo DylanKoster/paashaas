@@ -2,8 +2,8 @@ from freezegun import freeze_time
 from datetime import datetime, timedelta
 import httpx
 
-BASE_URL = "https://acovzz13a1.execute-api.eu-west-1.amazonaws.com/Prod"
-# BASE_URL = "http://127.0.0.1:3000"
+# BASE_URL = "https://acovzz13a1.execute-api.eu-west-1.amazonaws.com/Prod"
+BASE_URL = "http://127.0.0.1:3000"
 
 def test_create_store():
     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
@@ -85,54 +85,54 @@ def test_update_item():
     assert data["name"] == "New Item"
     assert data["quantity"] == 5
 
-# def test_create_order():
-#     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
-#     store_id = response.json()["id"]
+def test_create_order():
+    response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
+    store_id = response.json()["id"]
 
-#     response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [], "status": "pending"})
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["store_id"] == store_id
-#     assert data["status"] == "pending"
+    response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [], "status": "pending"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["store_id"] == store_id
+    assert data["status"] == "pending"
 
-# def test_get_orders():
-#     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
-#     store_id = response.json()["id"]
+def test_get_orders():
+    response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
+    store_id = response.json()["id"]
 
-#     httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [], "status": "pending"})
+    httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [], "status": "pending"})
 
-#     response = httpx.get(BASE_URL + f"/stores/{store_id}/orders/")
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert isinstance(data, list)
-#     assert len(data) > 0
-#     assert data[0]["store_id"] == store_id
+    response = httpx.get(BASE_URL + f"/stores/{store_id}/orders/")
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) > 0
+    assert data[0]["store_id"] == store_id
 
-# def test_get_order():
-#     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
-#     store_id = response.json()["id"]
+def test_get_order():
+    response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
+    store_id = response.json()["id"]
 
-#     response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [], "status": "pending"})
-#     order_id = response.json()["id"]
+    response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [], "status": "pending"})
+    order_id = response.json()["id"]
 
-#     response = httpx.get(BASE_URL + f"/stores/{store_id}/orders/{order_id}")
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["id"] == order_id
-#     assert data["store_id"] == store_id
-#     assert data["status"] == "pending"
+    response = httpx.get(BASE_URL + f"/stores/{store_id}/orders/{order_id}")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == order_id
+    assert data["store_id"] == store_id
+    assert data["status"] == "pending"
 
-# def test_complete_order():
-#     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
-#     store_id = response.json()["id"]
+def test_complete_order():
+    response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
+    store_id = response.json()["id"]
 
-#     response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": []})
-#     order_id = response.json()["id"]
+    response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": []})
+    order_id = response.json()["id"]
 
-#     response = httpx.put(BASE_URL + f"/stores/{store_id}/orders/{order_id}", json={"status": "completed"})
-#     assert response.status_code == 200
-#     data = response.json()
-#     assert data["status"] == "completed"
+    response = httpx.put(BASE_URL + f"/stores/{store_id}/orders/{order_id}", json={"status": "completed"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "completed"
 
 # def test_reserve_item():
 #     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})

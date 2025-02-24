@@ -29,9 +29,9 @@ class OrderItem(BaseModel):
 class Order(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
     store_id: str = ""
-    creation_date: datetime = Field(default_factory=datetime.now)
-    expiry_date: datetime = Field(default_factory=lambda x: datetime.now() + timedelta(minutes=ORDER_EXPIRY_MINUTES))
-    status: str = Field(default="pending")
+    status: str = "pending"
+    creation_date: int = Field(default_factory=lambda: int(datetime.now().timestamp()))
+    expiry_date: int = Field(default_factory=lambda: int((datetime.now() + timedelta(minutes=ORDER_EXPIRY_MINUTES)).timestamp()))
     items: list[OrderItem] = []
 
     @field_validator("status")
