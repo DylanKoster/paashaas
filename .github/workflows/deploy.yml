@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-      - uses: actions/checkout@v3
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -98,4 +98,4 @@ jobs:
         uses: aws-actions/setup-sam@v2
 
       - name: Deploy PaaS-HaaS
-      - run: cd paas-haas && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --no-disable-rollback
+        run: cd paas-haas && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --no-disable-rollback
