@@ -55,7 +55,7 @@ def create_dynamodb_tables(template, dynamodb):
             # Add Provisioned Throughput if necessary
             if table_params["BillingMode"] == "PROVISIONED":
                 table_params["ProvisionedThroughput"] = properties["ProvisionedThroughput"]
-
+            
             try:
                 dynamodb.create_table(**table_params)
                 print(f"Created table: {table_params['TableName']}")
