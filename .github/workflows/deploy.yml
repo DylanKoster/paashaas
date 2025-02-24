@@ -6,11 +6,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - uses: aws-actions/setup-sam@v2
-      - run: cd paas-haas && sam build
-      - run: cd paas-haas && ls -al
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install & setup python
+        uses: actions/setup-python@v3
+
+      - name: Install & setup AWS SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Build PaaS-HaaS
+        run: cd paas-haas && sam build
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -24,9 +31,11 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout source
+        uses: actions/checkout@v3
 
-      - uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -38,11 +47,11 @@ jobs:
           name: sam-build
           path: paas-haas/.aws-sam
 
-      - uses: actions/setup-python@v3
+      - name: Install & setup python
+        uses: actions/setup-python@v3
 
-      - uses: aws-actions/setup-sam@v2
-        with:
-          python-version: "3.13"
+      - name: Install & setup AWS SAM
+        uses: aws-actions/setup-sam@v2
 
       - name: Setup local DynamoDB
         run: |
@@ -66,12 +75,27 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout source
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - uses: aws-actions/setup-sam@v2
-      - uses: aws-actions/configure-aws-credentials@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sam-build
+          path: paas-haas/.aws-sam
+
+      - name: Install & setup python
+        uses: actions/setup-python@v3
+
+      - name: Install & setup AWS SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Deploy PaaS-HaaS
       - run: cd paas-haas && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --no-disable-rollback
