@@ -3,27 +3,100 @@ on:
     branches:
       - main
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v3
-      - uses: aws-actions/setup-sam@v2
-      - uses: aws-actions/configure-aws-credentials@v1
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Install & setup python
+        uses: actions/setup-python@v3
+
+      - name: Install & setup AWS SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Build PaaS-HaaS
+        run: cd paas-haas && sam build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sam-build
+          path: paas-haas/.aws-sam/
+          include-hidden-files: true
+          retention-days: 1
+          if-no-files-found: error
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-1
-      - run: cd paas-haas && sam build --use-container
-      - run: cd paas-haas && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --no-disable-rollback
 
-  test:
-      needs: deploy
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-python@v3
-          with:
-            python-version: '3.13'
-        - run: python -m pip install -r tests/requirements.txt
-        - run: pytest tests/
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sam-build
+          path: paas-haas/.aws-sam
+
+      - name: Install & setup python
+        uses: actions/setup-python@v3
+
+      - name: Install & setup AWS SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Setup local DynamoDB
+        run: |
+          docker run -p 8000:8000 amazon/dynamodb-local &
+          sleep 20
+          python -m pip install -r scripts/create_dynamodb_tables/requirements.txt
+          python scripts/create_dynamodb_tables/create_dynamodb_tables.py
+
+      - name: Run tests
+        run: |
+          cd paas-haas && sam local start-api > sam_api.log 2>&1 &
+
+          until curl -s http://localhost:3000/stores/; do
+            echo "Waiting for API to be up..."
+            sleep 5
+          done
+
+          python -m pip install -r tests/requirements.txt
+          pytest tests/
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: sam-build
+          path: paas-haas/.aws-sam
+
+      - name: Install & setup python
+        uses: actions/setup-python@v3
+
+      - name: Install & setup AWS SAM
+        uses: aws-actions/setup-sam@v2
+
+      - name: Deploy PaaS-HaaS
+        run: cd paas-haas && sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --no-disable-rollback
