@@ -25,7 +25,7 @@ def load_template(file_path="template.yml"):
     yaml.add_constructor('!GetAtt', getatt_constructor)
     
     with open(file_path, "r") as file:
-        return yaml.safe_load(file)
+        return yaml.load(file, Loader=yaml.FullLoader)
 
 
 def create_dynamodb_tables(template):
