@@ -1,11 +1,14 @@
+#!/usr/bin/env python
+"""
+Parses a SAM template.yaml, searches for any DynamoDB table specifications and creates local DynamoDB tables based on
+these specifications. 
+"""
+
 import boto3
 import yaml
 
 # Configure the local DynamoDB endpoint
 DYNAMODB_ENDPOINT = "http://localhost:8000"
-
-# Initialize DynamoDB client
-dynamodb = boto3.client("dynamodb", endpoint_url=DYNAMODB_ENDPOINT)
 
 # Custom YAML tag handlers
 def ref_constructor(loader, node):
@@ -20,6 +23,9 @@ def getatt_constructor(loader, node):
     return f"GETATT_{'.'.join(node.value)}"
 
 def load_template(file_path="template.yml"):
+    """
+    Initialize PyYAML custom constructors and parse the file stored at file_path.
+    """
     yaml.add_constructor('!Ref', ref_constructor)
     yaml.add_constructor('!Sub', sub_constructor)
     yaml.add_constructor('!GetAtt', getatt_constructor)
@@ -28,8 +34,10 @@ def load_template(file_path="template.yml"):
         return yaml.load(file, Loader=yaml.FullLoader)
 
 
-def create_dynamodb_tables(template):
-    """Extract table definitions and create them in local DynamoDB."""
+def create_dynamodb_tables(template, dynamodb):
+    """
+    Extract table definitions and create them in local DynamoDB.
+    """
     resources = template.get("Resources", {})
 
     for resource_name, resource in resources.items():
@@ -58,5 +66,7 @@ def create_dynamodb_tables(template):
 
 
 if __name__ == "__main__":
+    dynamodb = boto3.client("dynamodb", endpoint_url=DYNAMODB_ENDPOINT)
+    
     template_data = load_template("paas-haas/template.yaml")
-    create_dynamodb_tables(template_data)
+    create_dynamodb_tables(template_data, dynamodb)
