@@ -57,7 +57,8 @@ jobs:
         run: |
           docker run -p 8000:8000 amazon/dynamodb-local &
           sleep 20
-          python scripts/create_dynamodb_tables.py
+          python -m pip install -r scripts/create_dynamodb_tables/requirements.txt
+          python scripts/create_dynamodb_tables/create_dynamodb_tables.py
 
       - name: Run tests
         run: |
