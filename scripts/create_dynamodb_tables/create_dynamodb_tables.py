@@ -7,9 +7,23 @@ DYNAMODB_ENDPOINT = "http://localhost:8000"
 # Initialize DynamoDB client
 dynamodb = boto3.client("dynamodb", endpoint_url=DYNAMODB_ENDPOINT)
 
+# Custom YAML tag handlers
+def ref_constructor(loader, node):
+    return f"REF_{node.value}"
+
+def sub_constructor(loader, node):
+    if isinstance(node, yaml.ScalarNode):
+        return node.value
+    return node.value[0]
+
+def getatt_constructor(loader, node):
+    return f"GETATT_{'.'.join(node.value)}"
 
 def load_template(file_path="template.yml"):
-    """Load and parse the CloudFormation template."""
+    yaml.add_constructor('!Ref', ref_constructor)
+    yaml.add_constructor('!Sub', sub_constructor)
+    yaml.add_constructor('!GetAtt', getatt_constructor)
+    
     with open(file_path, "r") as file:
         return yaml.safe_load(file)
 
