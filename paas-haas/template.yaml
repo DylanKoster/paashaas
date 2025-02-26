@@ -10,6 +10,38 @@ Globals:
     Timeout: 30
 
 Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - dynamodb:DescribeStream
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:ListStreams
+                Resource: !GetAtt ItemsTable.StreamArn
+
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -110,6 +142,18 @@ Resources:
             Path: /stores/{store_id}/orders/{order_id}
             Method: put
 
+  notificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/notifications/
+      Handler: notifications.lambda_handler
+      Layers:
+        - !Ref sharedLayer
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Role: !GetAtt LambdaExecutionRole.Arn
+
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -146,6 +190,8 @@ Resources:
         - AttributeName: store_id
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: "NEW_IMAGE"
 
   OrdersTable:
     Type: AWS::DynamoDB::Table
@@ -158,6 +204,18 @@ Resources:
         - AttributeName: id
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
+
+  EventSourceItemsTableStream:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      Enabled: True
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "dynamodb" : { "NewImage" : { "quantity" : { "N": ["0.0", "0"] } } } }'
+      EventSourceArn: !GetAtt ItemsTable.StreamArn
+      FunctionName: !GetAtt notificationsFunction.Arn
+      StartingPosition: LATEST
 
 Outputs:
   storesApi:
