@@ -191,7 +191,7 @@ Resources:
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       StreamSpecification:
-        StreamViewType: "NEW_AND_OLD_IMAGES"
+        StreamViewType: "NEW_IMAGE"
 
   OrdersTable:
     Type: AWS::DynamoDB::Table
@@ -212,7 +212,7 @@ Resources:
       Enabled: True
       FilterCriteria:
         Filters:
-          - Pattern: '{ "dynamodb": { "NewImage": { "quantity": { "N": [0] } } } }'
+          - Pattern: '{ "dynamodb" : { "NewImage" : { "quantity" : { "N": ["0.0", "0"] } } } }'
       EventSourceArn: !GetAtt ItemsTable.StreamArn
       FunctionName: !GetAtt notificationsFunction.Arn
       StartingPosition: LATEST
