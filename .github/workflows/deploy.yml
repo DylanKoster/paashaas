@@ -6,9 +6,12 @@ on:
 env:
   DYNAMODB_MAX_CONN_ATTEMPTS: 30
   DYNAMODB_CONN_INTERVAL_SECONDS: 2
+  SES_MAX_CONN_ATTEMPTS: 30
+  SES_CONN_INTERVAL_SECONDS: 10
   API_MAX_CONN_ATTEMPTS: 30
   API_CONN_INTERVAL_SECONDS: 2
   CREATE_TABLES_PACKAGE_PATH: scripts/create_dynamodb_tables
+  SETUP_SES_PACKAGE_PATH: scripts/setup_ses
 
 jobs:
   build:
@@ -83,24 +86,24 @@ jobs:
           python ${CREATE_TABLES_PACKAGE_PATH}/create_dynamodb_tables.py
 
       - name: Install dependencies for SES
-        run: pip install -r scripts/setup_ses/requirements.txt
+        run: python -m pip install -r ${SETUP_SES_PACKAGE_PATH}/requirements.txt
 
       - name: Configure AWS SES
         run: |
           # Verify SES domain identity
           echo "Verifying SES domain identity..."
-          python scripts/setup_ses/setup_ses.py
+          python ${SETUP_SES_PACKAGE_PATH}/setup_ses.py
 
           # Poll until SES domain is verified
           attempts=0
           until aws ses get-identity-verification-attributes --identities example.com | grep -q '"VerificationStatus": "Success"' || [ $attempts -ge 30 ]; do
             echo "Waiting for SES domain verification..."
-            sleep 10
+            sleep $SES_CONN_INTERVAL_SECONDS
             attempts=$((attempts + 1))
           done
 
-          if [ $attempts -ge 30 ]; then
-            echo "SES domain verification failed after 30 attempts"
+          if [ $attempts -ge $SES_MAX_CONN_ATTEMPTS ]; then
+            echo "SES domain verification failed after $SES_MAX_CONN_ATTEMPTS attempts"
             exit 1
           else
             echo "SES domain verification succeeded!"
