@@ -82,6 +82,30 @@ jobs:
           python -m pip install -r ${CREATE_TABLES_PACKAGE_PATH}/requirements.txt
           python ${CREATE_TABLES_PACKAGE_PATH}/create_dynamodb_tables.py
 
+      - name: Install dependencies for SES
+        run: pip install -r scripts/setup_ses/requirements.txt
+
+      - name: Configure AWS SES
+        run: |
+          # Verify SES domain identity
+          echo "Verifying SES domain identity..."
+          python scripts/setup_ses/setup_ses.py
+
+          # Poll until SES domain is verified
+          attempts=0
+          until aws ses get-identity-verification-attributes --identities example.com | grep -q '"VerificationStatus": "Success"' || [ $attempts -ge 30 ]; do
+            echo "Waiting for SES domain verification..."
+            sleep 10
+            attempts=$((attempts + 1))
+          done
+
+          if [ $attempts -ge 30 ]; then
+            echo "SES domain verification failed after 30 attempts"
+            exit 1
+          else
+            echo "SES domain verification succeeded!"
+          fi
+
       - name: Run tests
         run: |
           cd paas-haas && sam local start-api > sam_api.log 2>&1 &

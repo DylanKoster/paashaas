@@ -10,6 +10,26 @@ Globals:
     Timeout: 30
 
 Resources:
+  EmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: "example.com"
+
+  SESPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "SESSendEmailPolicy"
+      Roles:
+        - !Ref LambdaExecutionRole
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "ses:SendEmail"
+              - "ses:SendRawEmail"
+            Resource: "*"
+            
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
