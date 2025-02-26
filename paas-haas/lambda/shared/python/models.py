@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field, field_validator
 from bson import ObjectId
 from datetime import datetime, timedelta
 
-ORDER_EXPIRY_MINUTES = 15
+ORDER_EXPIRY_MINUTES = 1
 
 class Store(BaseModel):
     id: str = Field(default_factory=lambda: str(ObjectId()), alias="_id")
