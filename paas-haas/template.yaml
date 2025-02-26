@@ -10,25 +10,22 @@ Globals:
     Timeout: 30
 
 Resources:
-  EmailIdentity:
-    Type: AWS::SES::EmailIdentity
+  # EmailIdentity:
+  #   Type: AWS::SES::EmailIdentity
+  #   Properties:
+  #     EmailIdentity: "dylankoster40@gmail.com"
+  SendEmailLambda:
+    Type: AWS::Lambda::Function
     Properties:
-      EmailIdentity: "example.com"
-
-  SESPolicy:
-    Type: AWS::IAM::Policy
-    Properties:
-      PolicyName: "SESSendEmailPolicy"
-      Roles:
-        - !Ref LambdaExecutionRole
-      PolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Effect: "Allow"
-            Action:
-              - "ses:SendEmail"
-              - "ses:SendRawEmail"
-            Resource: "*"
+      CodeUri: lambda/mailing/
+      Runtime: "python3.13"
+      Handler: "email.lambda_handler"
+      policies:
+        - SESCrusPolicy:
+          IdentityName: "dylankoster40@gmail.com"
+      Environment:
+        variables:
+          SES_EMAIL_FROM: "dylankoster40@example.com"
             
   storesFunction:
     Type: AWS::Serverless::Function
@@ -180,6 +177,10 @@ Resources:
       BillingMode: PAY_PER_REQUEST
 
 Outputs:
+  SendEmailLambda:
+    Description: "ARN of My Lambda Function"
+    Value: !GetAtt SendEmailLambda.Arn
+
   storesApi:
     Description: "API Gateway endpoint URL for Prod stage for stores function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"

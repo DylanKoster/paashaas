@@ -20,16 +20,13 @@ HOSTED_ZONE_ID = "Z123456789EXAMPLE"  # Replace with actual Route 53 Hosted Zone
 def ref_constructor(loader, node):
     return f"REF_{node.value}"
 
-
 def sub_constructor(loader, node):
     if isinstance(node, yaml.ScalarNode):
         return node.value
     return node.value[0]
 
-
 def getatt_constructor(loader, node):
     return f"GETATT_{'.'.join(node.value)}"
-
 
 def load_template(file_path=TEMPLATE_PATH):
     """
@@ -42,7 +39,6 @@ def load_template(file_path=TEMPLATE_PATH):
     with open(file_path, "r") as file:
         return yaml.load(file, Loader=yaml.FullLoader)
 
-
 def setup_ses(template):
     """
     Extract SES configurations and set them up automatically.
@@ -53,16 +49,13 @@ def setup_ses(template):
         if resource.get("Type") == "AWS::SES::EmailIdentity":
             email_identity = resource["Properties"]["EmailIdentity"]
 
-            # Step 1: Verify Domain in SES
             response = ses_client.verify_domain_identity(Domain=email_identity)
             verification_token = response["VerificationToken"]
             print(f"SES Domain Verification Token for {email_identity}: {verification_token}")
 
-            # Step 2: Get DKIM Records
             dkim_response = ses_client.verify_domain_dkim(Domain=email_identity)
             dkim_tokens = dkim_response["DkimTokens"]
 
-            # Step 3: Add DNS Records to Route 53
             dns_changes = [
                 {
                     "Action": "UPSERT",
@@ -95,7 +88,6 @@ def setup_ses(template):
             )
             print(f"DNS records added for {email_identity}. Waiting for verification...")
 
-            # Step 4: Wait for Verification
             while True:
                 verification_status = ses_client.get_identity_verification_attributes(
                     Identities=[email_identity]
@@ -107,7 +99,7 @@ def setup_ses(template):
                     print(f"Domain {email_identity} successfully verified!")
                     break
 
-                time.sleep(30)  # Wait before checking again
+                time.sleep(30)
 
 
 if __name__ == "__main__":
