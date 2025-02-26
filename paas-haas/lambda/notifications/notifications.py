@@ -1,9 +1,15 @@
 import json
 
 def lambda_handler(event, context):
-    #print("Received event: " + json.dumps(event, indent=2))
-    for record in event['Records']:
-        print(record['eventID'])
-        print(record['eventName'])
-        print("DynamoDB Record: " + json.dumps(record['dynamodb'], indent=2))
+    if (len(event["Records"]) > 1):
+        return {
+            'statusCode': 500,
+            'body': json.dumps('More than one record was returned.')
+        }
+    
+    record = event['Records'][0]   
+    item = record['dynamodb']['NewImage']
+    
+    # item contains store_id, id, img, name, and quantity.
+
     return 'Successfully processed {} records.'.format(len(event['Records']))
