@@ -146,7 +146,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: lambda/notifications/
-      Handler: orders.lambda_handler
+      Handler: notifications.lambda_handler
       Layers:
         - !Ref sharedLayer
       Runtime: python3.13
