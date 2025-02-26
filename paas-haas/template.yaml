@@ -10,23 +10,11 @@ Globals:
     Timeout: 30
 
 Resources:
-  # EmailIdentity:
-  #   Type: AWS::SES::EmailIdentity
-  #   Properties:
-  #     EmailIdentity: "dylankoster40@gmail.com"
-  SendEmailLambda:
-    Type: AWS::Lambda::Function
+  EmailIdentity:
+    Type: AWS::SES::EmailIdentity
     Properties:
-      CodeUri: lambda/mailing/
-      Runtime: "python3.13"
-      Handler: "email.lambda_handler"
-      policies:
-        - SESCrusPolicy:
-          IdentityName: "dylankoster40@gmail.com"
-      Environment:
-        variables:
-          SES_EMAIL_FROM: "dylankoster40@example.com"
-            
+      EmailIdentity: "notifications.paashaas@gmail.com"
+
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -58,6 +46,11 @@ Resources:
                   - dynamodb:GetShardIterator
                   - dynamodb:ListStreams
                 Resource: !GetAtt ItemsTable.StreamArn
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: arn:aws:ses:eu-west-1:950654245778:identity/*
 
   storesFunction:
     Type: AWS::Serverless::Function
@@ -162,6 +155,9 @@ Resources:
   notificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Policies:
+        - SESCrusPolicy:
+          IdentityName: "dylankoster40@gmail.com"
       CodeUri: lambda/notifications/
       Handler: notifications.lambda_handler
       Layers:
@@ -170,6 +166,9 @@ Resources:
       Architectures:
         - x86_64
       Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          SES_EMAIL_FROM: "dylankoster40@example.com"
 
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
@@ -235,9 +234,9 @@ Resources:
       StartingPosition: LATEST
 
 Outputs:
-  SendEmailLambda:
+  NotificationsLambda:
     Description: "ARN of My Lambda Function"
-    Value: !GetAtt SendEmailLambda.Arn
+    Value: !GetAtt notificationsFunction.Arn
 
   storesApi:
     Description: "API Gateway endpoint URL for Prod stage for stores function"
