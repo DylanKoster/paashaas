@@ -2,6 +2,14 @@ on:
   push:
     branches:
       - main
+
+env:
+  DYNAMODB_MAX_CONN_ATTEMPTS: 30
+  DYNAMODB_CONN_INTERVAL_SECONDS: 2
+  API_MAX_CONN_ATTEMPTS: 30
+  API_CONN_INTERVAL_SECONDS: 2
+  CREATE_TABLES_PACKAGE_PATH: scripts/create_dynamodb_tables
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -53,21 +61,44 @@ jobs:
       - name: Install & setup AWS SAM
         uses: aws-actions/setup-sam@v2
 
-      - name: Setup local DynamoDB
+      - name: Launch local DynamoDB
         run: |
           docker run -p 8000:8000 amazon/dynamodb-local &
-          sleep 20
-          python -m pip install -r scripts/create_dynamodb_tables/requirements.txt
-          python scripts/create_dynamodb_tables/create_dynamodb_tables.py
+
+          attempts=0
+          until curl -s http://localhost:8000/shell/ > /dev/null || [ $attempts -ge $DYNAMODB_MAX_CONN_ATTEMPTS ]; do
+            echo "Waiting for DynamoDB to be up..."
+            sleep $DYNAMODB_CONN_INTERVAL_SECONDS
+            attempts=$((attempts + 1))
+          done
+
+          if [ $attempts -ge $DYNAMODB_MAX_CONN_ATTEMPTS ]; then
+            echo "DynamoDB failed to start after $DYNAMODB_MAX_CONN_ATTEMPTS attempts"
+            exit 1
+          else
+            echo "DynamoDB is up and running!"
+          fi
+
+          python -m pip install -r ${CREATE_TABLES_PACKAGE_PATH}/requirements.txt
+          python ${CREATE_TABLES_PACKAGE_PATH}/create_dynamodb_tables.py
 
       - name: Run tests
         run: |
           cd paas-haas && sam local start-api > sam_api.log 2>&1 &
 
-          until curl -s http://localhost:3000/stores/; do
-            echo "Waiting for API to be up..."
-            sleep 5
+          attempts=0
+          echo "Waiting for API to be up..."
+          until curl -s http://localhost:3000/stores/ > /dev/null || [ $attempts -ge $API_MAX_CONN_ATTEMPTS ]; do
+            sleep $API_CONN_INTERVAL_SECONDS
+            attempts=$((attempts+1))
           done
+
+          if [ $attempts -ge $API_MAX_CONN_ATTEMPTS ]; then
+            echo "API failed to start after $API_MAX_CONN_ATTEMPTS attempts"
+            exit 1
+          else
+            echo "The API is up and running!"
+          fi
 
           python -m pip install -r tests/requirements.txt
           pytest tests/
