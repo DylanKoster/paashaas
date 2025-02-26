@@ -2,7 +2,7 @@ import json
 import boto3
 from models import Order, InventoryItem
 from decimal import Decimal
-# from util import close_expired_orders
+from util import close_expired_orders
 
 dynamodb = boto3.resource('dynamodb')
 orders_table = dynamodb.Table('Orders')
@@ -42,7 +42,7 @@ def lambda_handler(event, context):
 
 
 def get_orders(store_id):
-    # close_expired_orders()
+    close_expired_orders(orders_table, items_table)
     response = orders_table.scan(FilterExpression="store_id = :store_id", ExpressionAttributeValues={':store_id': store_id})
     orders = response['Items']
     return {
@@ -52,6 +52,7 @@ def get_orders(store_id):
 
 
 def get_order(store_id, order_id):
+    close_expired_orders(orders_table, items_table)
     response = orders_table.get_item(Key={'id': order_id})
     order = response.get('Item')
     return {
@@ -61,19 +62,20 @@ def get_order(store_id, order_id):
 
 
 def add_order(store_id, body):
+    close_expired_orders(orders_table, items_table)
     try:
         order = Order.model_validate(body)
         order.store_id = store_id
 
         for item in order.items:
-            response = orders_table.get_item(Key={'id': item['item_id']})
+            response = items_table.get_item(Key={'id': item.item_id, 'store_id': store_id})
             inv_item = InventoryItem(**response.get('Item'))
             if inv_item.quantity < item.quantity:
                 raise Exception('Not enough stock for item: ' + inv_item.name)
 
         for item in order.items:
             items_table.update_item(
-                Key={'id': item['item_id']},
+                Key={'id': item.item_id, 'store_id': store_id},
                 UpdateExpression="SET #quantity = #quantity - :quantity",
                 ExpressionAttributeNames={
                     '#quantity': 'quantity',
@@ -97,9 +99,9 @@ def add_order(store_id, body):
 
 
 def alter_order(store_id, order_id, body):
+    close_expired_orders(orders_table, items_table)
     try:
         order = Order.model_validate(body)
-        # order = body
         response = orders_table.update_item(
             Key={'id': order_id},
             UpdateExpression="SET #status = :status",
