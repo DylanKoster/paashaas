@@ -10,6 +10,48 @@ Globals:
     Timeout: 30
 
 Resources:
+  EmailIdentity:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: "notifications.paashaas@gmail.com"
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - dynamodb:DescribeStream
+                  - dynamodb:GetRecords
+                  - dynamodb:GetShardIterator
+                  - dynamodb:ListStreams
+                Resource: !GetAtt ItemsTable.StreamArn
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: arn:aws:ses:eu-west-1:950654245778:identity/*
+
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -110,6 +152,24 @@ Resources:
             Path: /stores/{store_id}/orders/{order_id}
             Method: put
 
+  notificationsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Policies:
+        - SESCrusPolicy:
+          IdentityName: "dylankoster40@gmail.com"
+      CodeUri: lambda/notifications/
+      Handler: notifications.lambda_handler
+      Layers:
+        - !Ref sharedLayer
+      Runtime: python3.13
+      Architectures:
+        - x86_64
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Environment:
+        Variables:
+          SES_EMAIL_FROM: "dylankoster40@example.com"
+
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:
@@ -146,6 +206,8 @@ Resources:
         - AttributeName: store_id
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamViewType: "NEW_IMAGE"
 
   OrdersTable:
     Type: AWS::DynamoDB::Table
@@ -159,7 +221,23 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
+  EventSourceItemsTableStream:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      BatchSize: 1
+      Enabled: True
+      FilterCriteria:
+        Filters:
+          - Pattern: '{ "dynamodb" : { "NewImage" : { "quantity" : { "N": ["0.0", "0"] } } } }'
+      EventSourceArn: !GetAtt ItemsTable.StreamArn
+      FunctionName: !GetAtt notificationsFunction.Arn
+      StartingPosition: LATEST
+
 Outputs:
+  NotificationsLambda:
+    Description: "ARN of My Lambda Function"
+    Value: !GetAtt notificationsFunction.Arn
+
   storesApi:
     Description: "API Gateway endpoint URL for Prod stage for stores function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"

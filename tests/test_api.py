@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import httpx
 import time
 
-# BASE_URL = "https://acovzz13a1.execute-api.eu-west-1.amazonaws.com/Prod"
+# BASE_URL = "https://20j33qovtf.execute-api.eu-west-1.amazonaws.com/Prod"
 BASE_URL = "http://localhost:3000"
 
 def test_create_store():
