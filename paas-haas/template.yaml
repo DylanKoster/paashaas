@@ -9,11 +9,33 @@ Globals:
   Function:
     Timeout: 30
 
+Parameters:
+  EmptyItemMailTemplateHtml:
+    Type: String
+    Default: "An item in store {{ store_id }} has run out!<br><br>Details:<br>Item ID: {{ item_id }}<br>Item name: {{ item_name }}"
+
+  EmptyItemMailTemplateText:
+    Type: String
+    Default: "An item in store {{ store_id }} has run out!\n\nDetails:\nItem ID: {{ item_id }}\nItem name: {{ item_name }}"
+
+  EmptyItemMailTemplateSubject:
+    Type: String
+    Default: "PaaS-HaaS Empty Item Notification"
+
 Resources:
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: "notifications.paashaas@gmail.com"
+
+  EmptyItemMailTemplate:
+    Type: AWS::SES::Template
+    Properties:
+      Template:
+        TemplateName: EmptyItemMailTemplate
+        SubjectPart: !Ref EmptyItemMailTemplateSubject
+        TextPart: !Ref EmptyItemMailTemplateText
+        HtmlPart: !Ref EmptyItemMailTemplateHtml
 
   LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -48,8 +70,13 @@ Resources:
                 Resource: !GetAtt ItemsTable.StreamArn
               - Effect: Allow
                 Action:
+                  - ses:SendTemplatedEmail
+                Resource: arn:aws:ses:eu-west-1:950654245778:template/EmptyItemMailTemplate
+              - Effect: Allow
+                Action:
                   - ses:SendEmail
                   - ses:SendRawEmail
+                  - ses:SendTemplatedEmail
                 Resource: arn:aws:ses:eu-west-1:950654245778:identity/*
 
   storesFunction:

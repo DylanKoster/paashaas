@@ -16,18 +16,19 @@ def lambda_handler(event, context):
     item = record['dynamodb']['NewImage']
     
     sender_email = "notifications.paashaas@gmail.com"
-    recipient_email = ""  
-    subject = "PaaS-HaaS Empty Item Notification"
+    recipient_email = "dylankoster40@gmail.com"  
     
-    message_body = f"An item in store {item['store_id']['S']} has run out!\n\nDetails:\nItem ID: {item['id']['S']}\nItem name: {item['name']['S']}"
-    
-    response = ses_client.send_email(
+    template_data= {
+        "store_id": item['store_id']['S'],
+        "item_id": item['id']['S'],
+        "item_name": item['name']['S']
+    }
+
+    response = ses_client.send_templated_email(
         Source=sender_email,
         Destination={"ToAddresses": [recipient_email]},
-            Message={
-            "Subject": {"Data": subject},
-            "Body": {"Text": {"Data": message_body}}
-        }
+        Template="EmptyItemMailTemplate",
+        TemplateData=json.dumps(template_data)
     )
     
     print("Email Sent! Message ID:", response["MessageId"])
