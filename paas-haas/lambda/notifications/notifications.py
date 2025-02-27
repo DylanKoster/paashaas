@@ -19,7 +19,7 @@ def lambda_handler(event, context):
     recipient_email = ""  
     subject = "PaaS-HaaS Empty Item Notification"
     
-    message_body = f"An item in store {item['store_id']} has run out!\n\nDetails:\nItem ID: {item['id']}\nItem name: {item['name']}"
+    message_body = f"An item in store {item['store_id']['S']} has run out!\n\nDetails:\nItem ID: {item['id']['S']}\nItem name: {item['name']['S']}"
     
     response = ses_client.send_email(
         Source=sender_email,
