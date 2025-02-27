@@ -15,9 +15,8 @@ def lambda_handler(event, context):
     record = event['Records'][0]   
     item = record['dynamodb']['NewImage']
     
-    # item contains store_id, id, img, name, and quantity.
-    sender_email = "notifications.paashaas@gmail.com"  # Replace with your verified email
-    recipient_email = "dylankoster40@gmail.com"  # Change this if needed
+    sender_email = "notifications.paashaas@gmail.com"
+    recipient_email = ""  
     subject = "PaaS-HaaS Empty Item Notification"
     
     message_body = f"An item in store {item['store_id']} has run out!\n\nDetails:\nItem ID: {item['id']}\nItem name: {item['name']}"
