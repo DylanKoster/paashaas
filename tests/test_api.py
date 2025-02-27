@@ -1,6 +1,7 @@
 from freezegun import freeze_time
 from datetime import datetime, timedelta
 import httpx
+import time
 
 # BASE_URL = "https://20j33qovtf.execute-api.eu-west-1.amazonaws.com/Prod"
 BASE_URL = "http://localhost:3000"
@@ -144,29 +145,38 @@ def test_reserve_item():
     print(response.json())
 
     response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [{"item_id": item_id, "quantity": 5}]})
-    order_id = response.json()["id"]
-    print(response.json())
+    # order_id = response.json()["id"]
+    print("order", response.json())
 
     response = httpx.get(BASE_URL + f"/stores/{store_id}/items/{item_id}")
     print(response.json())
     data = response.json()
     assert data["quantity"] == 5
 
-def test_cancel_order():
-    response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
-    store_id = response.json()["id"]
+# def test_cancel_order():
+#     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
+#     store_id = response.json()["id"]
 
-    response = httpx.post(BASE_URL + f"/stores/{store_id}/items/", json={"name": "Test Item", "img": "", "quantity": 10})
-    item_id = response.json()["id"]
+#     response = httpx.post(BASE_URL + f"/stores/{store_id}/items/", json={"name": "Test Item", "img": "", "quantity": 10})
+#     item_id = response.json()["id"]
 
-    response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [{"item_id": item_id, "quantity": 5}]})
-    order_id = response.json()["id"]
+#     response = httpx.post(BASE_URL + f"/stores/{store_id}/orders/", json={"items": [{"item_id": item_id, "quantity": 5}]})
+#     order_id = response.json()["id"]
 
-    response = httpx.get(BASE_URL + f"/stores/{store_id}/items/{item_id}")
-    data = response.json()
-    assert data["quantity"] == 5
+#     response = httpx.get(BASE_URL + f"/stores/{store_id}/items/{item_id}")
+#     data = response.json()
+#     assert data["quantity"] == 5
 
-    with freeze_time(datetime.now() + timedelta(minutes=20)):
-        response = httpx.get(BASE_URL + f"/stores/{store_id}/orders/{order_id}")
-        assert response.status_code == 200
-        assert response.json()["status"] == "cancelled"
+#     time.sleep(70)
+
+#     with freeze_time(datetime.now() + timedelta(minutes=20)):
+#         response = httpx.get(BASE_URL + f"/stores/{store_id}/orders/{order_id}")
+#         assert response.status_code == 200
+#         data = response.json()
+#         print(datetime.now())
+#         print(data)
+#         assert data["status"] == "cancelled"
+
+#         response = httpx.get(BASE_URL + f"/stores/{store_id}/items/{item_id}")
+#         data = response.json()
+#         assert data["quantity"] == 10

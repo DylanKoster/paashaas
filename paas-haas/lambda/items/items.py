@@ -2,10 +2,11 @@ import json
 import boto3
 from models import InventoryItem
 from decimal import Decimal
-# from util import close_expired_orders
+from util import close_expired_orders
 
 dynamodb = boto3.resource('dynamodb')
 items_table = dynamodb.Table('Items')
+orders_table = dynamodb.Table('Orders')
 
 class DecimalEncoder(json.JSONEncoder):
     # TODO: why does dynanomdb store quantity in decimal?
@@ -41,7 +42,7 @@ def lambda_handler(event, context):
 
 
 def get_items(store_id):
-    # close_expired_orders()
+    close_expired_orders(orders_table, items_table)
     response = items_table.scan(FilterExpression="store_id = :store_id", ExpressionAttributeValues={':store_id': store_id})
     items = response['Items']
     return {
@@ -51,6 +52,7 @@ def get_items(store_id):
 
 
 def get_item(store_id, item_id):
+    close_expired_orders(orders_table, items_table)
     response = items_table.get_item(Key={'id': item_id, 'store_id': store_id})
     item = response.get('Item')
     return {
@@ -76,6 +78,7 @@ def add_item(store_id, body):
 
 
 def alter_item(store_id, item_id, body):
+    close_expired_orders(orders_table, items_table)
     try:
         item = InventoryItem.model_validate(body)
         response = items_table.update_item(
