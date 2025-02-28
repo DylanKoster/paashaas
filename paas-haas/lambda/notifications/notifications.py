@@ -1,5 +1,6 @@
 import json
 import boto3
+import os
 
 ses_client = boto3.client("ses", region_name="eu-west-1")
 
@@ -15,7 +16,6 @@ def lambda_handler(event, context):
     record = event['Records'][0]   
     item = record['dynamodb']['NewImage']
     
-    sender_email = "notifications.paashaas@gmail.com"
     recipient_email = "dylankoster40@gmail.com"  
     
     template_data= {
@@ -25,8 +25,8 @@ def lambda_handler(event, context):
     }
 
     response = ses_client.send_templated_email(
-        Source=sender_email,
-        Destination={"ToAddresses": [recipient_email]},
+        Source=os.environ['SES_EMAIL_SOURCE'],
+        Destination={"ToAddresses": [os.environ['SES_EMAIL_DEST']]},
         Template="EmptyItemMailTemplate",
         TemplateData=json.dumps(template_data)
     )

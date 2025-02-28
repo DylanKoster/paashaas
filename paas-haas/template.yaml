@@ -22,6 +22,14 @@ Parameters:
     Type: String
     Default: "PaaS-HaaS Empty Item Notification"
 
+  EmptyItemMailSourceAddress:
+    Type: String
+    Default: notifications.paashaas@gmail.com
+
+  EmptyItemMailDestAddress:
+    Type: String
+    Default: dylankoster40@gmail.com
+
 Resources:
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
@@ -195,7 +203,8 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
-          SES_EMAIL_FROM: "dylankoster40@example.com"
+          SES_EMAIL_SOURCE: !Ref EmptyItemMailSourceAddress
+          SES_EMAIL_DEST: !Ref EmptyItemMailDestAddress
 
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
