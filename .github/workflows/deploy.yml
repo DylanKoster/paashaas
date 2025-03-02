@@ -3,6 +3,10 @@ on:
     branches:
       - main
 
+  pull_request:
+    branches:
+      - main
+
 env:
   DYNAMODB_MAX_CONN_ATTEMPTS: 30
   DYNAMODB_CONN_INTERVAL_SECONDS: 2
@@ -107,6 +111,7 @@ jobs:
           pytest tests/
 
   deploy:
+    if: ${{ github.event_name != "pull_request" }}
     needs: test
     runs-on: ubuntu-latest
     steps:

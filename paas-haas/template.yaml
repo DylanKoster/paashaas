@@ -9,12 +9,43 @@ Globals:
   Function:
     Timeout: 30
 
+Parameters:
+  EmptyItemMailTemplateHtml:
+    Type: String
+    Default: "<h1>An item in store {{ store_name }} has run out!<h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: {{ item_name }}</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: {{ store_name }}<br>Store location: {{ store_location }}</p>"
+
+  EmptyItemMailTemplateText:
+    Type: String
+    Default: "An item in store {{ store_id }} has run out!\n\nDetails:\nItem ID: {{ item_id }}\nItem name: {{ item_name }}"
+
+  EmptyItemMailTemplateSubject:
+    Type: String
+    Default: "PaaS-HaaS Empty Item Notification"
+
+  EmptyItemMailSourceAddress:
+    Type: String
+    Default: notifications.paashaas@gmail.com
+
+  EmptyItemMailDestAddress:
+    Type: String
+    Default: dylankoster40@gmail.com
+
 Resources:
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: "notifications.paashaas@gmail.com"
 
+  EmptyItemMailTemplate:
+    Type: AWS::SES::Template
+    Properties:
+      Template:
+        TemplateName: EmptyItemMailTemplate
+        SubjectPart: !Ref EmptyItemMailTemplateSubject
+        TextPart: !Ref EmptyItemMailTemplateText
+        HtmlPart: !Ref EmptyItemMailTemplateHtml
+
+  # Roles
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -48,10 +79,16 @@ Resources:
                 Resource: !GetAtt ItemsTable.StreamArn
               - Effect: Allow
                 Action:
+                  - ses:SendTemplatedEmail
+                Resource: arn:aws:ses:eu-west-1:950654245778:template/EmptyItemMailTemplate
+              - Effect: Allow
+                Action:
                   - ses:SendEmail
                   - ses:SendRawEmail
+                  - ses:SendTemplatedEmail
                 Resource: arn:aws:ses:eu-west-1:950654245778:identity/*
 
+  # Lambda function definitions
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -159,9 +196,6 @@ Resources:
   notificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Policies:
-        - SESCrusPolicy:
-          IdentityName: "dylankoster40@gmail.com"
       CodeUri: lambda/notifications/
       Handler: notifications.lambda_handler
       Layers:
@@ -169,10 +203,14 @@ Resources:
       Runtime: python3.13
       Architectures:
         - x86_64
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref StoresTable
       Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
-          SES_EMAIL_FROM: "dylankoster40@example.com"
+          SES_EMAIL_SOURCE: !Ref EmptyItemMailSourceAddress
+          SES_EMAIL_DEST: !Ref EmptyItemMailDestAddress
 
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
@@ -183,6 +221,7 @@ Resources:
       CompatibleRuntimes:
         - python3.13
 
+  # Database table definitions
   StoresTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -225,6 +264,7 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
+  # DynamoDB stream filter
   EventSourceItemsTableStream:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
@@ -239,7 +279,7 @@ Resources:
 
 Outputs:
   NotificationsLambda:
-    Description: "ARN of My Lambda Function"
+    Description: "Notifications Lambda Function ARN"
     Value: !GetAtt notificationsFunction.Arn
 
   storesApi:
