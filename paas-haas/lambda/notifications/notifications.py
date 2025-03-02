@@ -3,6 +3,8 @@ import boto3
 import os
 
 ses_client = boto3.client("ses", region_name="eu-west-1")
+dynamodb = boto3.resource('dynamodb')
+stores_table = dynamodb.Table('Stores')
 
 def lambda_handler(event, context):
     print("Event Received:", json.dumps(event))
@@ -15,11 +17,12 @@ def lambda_handler(event, context):
     
     record = event['Records'][0]   
     item = record['dynamodb']['NewImage']
-    
-    recipient_email = "dylankoster40@gmail.com"  
-    
+    store = stores_table.get_item(Key={'id': item['store_id']['S']})
+
     template_data= {
         "store_id": item['store_id']['S'],
+        "store_name": store['id']['S'],
+        "store_location": store['location']['S'],
         "item_id": item['id']['S'],
         "item_name": item['name']['S']
     }

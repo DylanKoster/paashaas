@@ -12,7 +12,7 @@ Globals:
 Parameters:
   EmptyItemMailTemplateHtml:
     Type: String
-    Default: "An item in store {{ store_id }} has run out!<br><br>Details:<br>Item ID: {{ item_id }}<br>Item name: {{ item_name }}"
+    Default: "<h1>An item in store {{ store_name }} has run out!<h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: {{ item_name }}</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: {{ store_name }}<br>Store location: {{ store_location }}</p>"
 
   EmptyItemMailTemplateText:
     Type: String
@@ -45,6 +45,7 @@ Resources:
         TextPart: !Ref EmptyItemMailTemplateText
         HtmlPart: !Ref EmptyItemMailTemplateHtml
 
+  # Roles
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -87,6 +88,7 @@ Resources:
                   - ses:SendTemplatedEmail
                 Resource: arn:aws:ses:eu-west-1:950654245778:identity/*
 
+  # Lambda function definitions
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -190,9 +192,6 @@ Resources:
   notificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Policies:
-        - SESCrusPolicy:
-          IdentityName: "dylankoster40@gmail.com"
       CodeUri: lambda/notifications/
       Handler: notifications.lambda_handler
       Layers:
@@ -200,6 +199,9 @@ Resources:
       Runtime: python3.13
       Architectures:
         - x86_64
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref StoresTable
       Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
@@ -215,6 +217,7 @@ Resources:
       CompatibleRuntimes:
         - python3.13
 
+  # Database table definitions
   StoresTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -257,6 +260,7 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
+  # DynamoDB stream filter
   EventSourceItemsTableStream:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
@@ -271,7 +275,7 @@ Resources:
 
 Outputs:
   NotificationsLambda:
-    Description: "ARN of My Lambda Function"
+    Description: "Notifications Lambda Function ARN"
     Value: !GetAtt notificationsFunction.Arn
 
   storesApi:
