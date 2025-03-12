@@ -17,12 +17,12 @@ def lambda_handler(event, context):
     
     record = event['Records'][0]   
     item = record['dynamodb']['NewImage']
-    store = stores_table.get_item(Key={'id': item['store_id']['S']})
+    store = stores_table.get_item(Key={'id': item['store_id']['S']})['Item']
 
     template_data= {
         "store_id": item['store_id']['S'],
-        "store_name": store['id']['S'],
-        "store_location": store['location']['S'],
+        "store_name": store['name'],
+        "store_location": store['location'],
         "item_id": item['id']['S'],
         "item_name": item['name']['S']
     }

@@ -12,11 +12,11 @@ Globals:
 Parameters:
   EmptyItemMailTemplateHtml:
     Type: String
-    Default: "<h1>An item in store {{ store_name }} has run out!<h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: {{ item_name }}</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: {{ store_name }}<br>Store location: {{ store_location }}</p>"
+    Default: '<h1>An item in store "{{ store_name }}" has run out!</h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: "{{ item_name }}"</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: "{{ store_name }}"<br>Store location: "{{ store_location }}"</p>'
 
   EmptyItemMailTemplateText:
     Type: String
-    Default: "An item in store {{ store_id }} has run out!\n\nDetails:\nItem ID: {{ item_id }}\nItem name: {{ item_name }}"
+    Default: "An item in store \"{{ store_name }}\" has run out!\nItem details:\nItem ID: {{ item_id }}\nItem name: \"{{ item_name }}\"\nStore details:\nStore ID: {{ store_id }}\nStore name: \"{{ store_name }}\"\nStore location: \"{{ store_location }}\""
 
   EmptyItemMailTemplateSubject:
     Type: String
@@ -87,6 +87,10 @@ Resources:
                   - ses:SendRawEmail
                   - ses:SendTemplatedEmail
                 Resource: arn:aws:ses:eu-west-1:950654245778:identity/*
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                Resource: !GetAtt StoresTable.Arn
 
   # Lambda function definitions
   storesFunction:
