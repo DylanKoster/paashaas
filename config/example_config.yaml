@@ -4,5 +4,4 @@ mail_source_address: notifications.paashaas@gmail.com
 mail_dest_address: dylankoster40@gmail.com
 empty_item_mail_template:
   subject: PaaS-HaaS empty item notification
-  html: '<h1>An item in store "{{ store_name }}" has run out!</h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: "{{ item_name }}"</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: "{{ store_name }}"<br>Store location: "{{ store_location }}"</p>'
-  text: "An item in store \"{{ store_name }}\" has run out!\nItem details:\nItem ID: {{ item_id }}\nItem name: \"{{ item_name }}\"\nStore details:\nStore ID: {{ store_id }}\nStore name: \"{{ store_name }}\"\nStore location: \"{{ store_location }}\""
+  html: '<h1>An item in store {{store_name}} has run out!</h1><p>Item details:<br>Item ID: {{item_id}}<br>Item name: {{item_name}}</p><p>Store details:<br>Store ID: {{store_id}}<br>Store name: {{store_name}}<br>Store location: {{store_location}}</p>'

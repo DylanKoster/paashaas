@@ -31,7 +31,7 @@ def translate_config_key_to_template(name: str) -> str:
     return ''.join(map(lambda v: v.capitalize(), name.split("_")))  
 
 def translate_config_value_to_template(value: str) -> str:
-    return value.replace("<", "%3C").replace(">", "%3E").replace(" ", "%20").replace("\n", "%0A")
+    return value.replace(" ", "\ ").replace('\n', '\t\n')
 
 def create_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -64,11 +64,14 @@ def build(path: str):
     with subprocess.Popen(f"cd {path} && sam build", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True) as process:
         for stdout_line in iter(process.stdout.readline, ""):
             print(stdout_line) 
+        
+        stdout, stderr = process.communicate()
+
 
     return_code = process.wait()
     if return_code != 0:
         print("Something went wrong while building the template file! Error message:")
-        print("\n  " + process.stderr.decode('utf-8'))
+        print("\n  " + stderr)
         exit(1)
 
     print("Build succesful!")
@@ -88,7 +91,9 @@ def deploy(template: PaashaasConfig, path: str) -> None:
                 trans_key_sub = translate_config_key_to_template(key_sub)
                 trans_value: str = translate_config_value_to_template(value_sub)
 
-                parameters.append(f"{trans_key}{trans_key_sub}={trans_value}")
+                print(f"debug: {value_sub}")
+
+                parameters.append(f"{trans_key}{trans_key_sub}=\"{trans_value}\"")
 
         else: 
             parameters.append(f"{trans_key}={value}")
