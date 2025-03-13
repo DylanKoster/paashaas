@@ -92,7 +92,7 @@ def build(path: str):
     Executes the sam build command in the path directory. Captures stdout and stderr. Stdout is printed in real time and
     stderr is printed iff the return code is not 0.
     """
-    print("Starting SAM build...")
+    print("Starting SAM build...", end="\n\n")
     
     with subprocess.Popen(f"cd {path} && sam build", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True) as process:
         for stdout_line in iter(process.stdout.readline, ""):
@@ -106,7 +106,7 @@ def build(path: str):
         print("\n  " + stderr.decode('utf-8'))
         exit(1)
 
-    print("Build succesful!")
+    print("\nBuild succesful!", end="\n\n")
 
 def deploy(template: PaashaasConfig, path: str) -> None:
     """
@@ -115,7 +115,7 @@ def deploy(template: PaashaasConfig, path: str) -> None:
 
     All parameters in template are first translated to valid --parameters-override values.
     """
-    print("Starting SAM deployment...")
+    print("\nStarting SAM deployment...", end="\n\n")
 
     cmd: str = "sam deploy --parameter-overrides "
     parameters = []
@@ -150,7 +150,7 @@ def deploy(template: PaashaasConfig, path: str) -> None:
         print("\n  " + stderr)
         exit(1)
 
-    print("Deployment succesful!")
+    print("\nDeployment succesful!", end="\n\n")
 
 if __name__ == "__main__":
     args: argparse.Namespace = create_args()
