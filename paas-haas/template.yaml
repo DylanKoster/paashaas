@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Paas-Haas API
+  PaaS-HaaS API
 
   API for creating, removing, and altering stores, items and orders with PaaS-HaaS.
 
@@ -12,21 +12,21 @@ Globals:
 Parameters:
   EmptyItemMailTemplateHtml:
     Type: String
-    Default: '<h1>An item in store "{{ store_name }}" has run out!</h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: "{{ item_name }}"</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: "{{ store_name }}"<br>Store location: "{{ store_location }}"</p>'
+    Default: '<html><body><h1>An item in store "{{ store_name }}" has run out!</h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: "{{ item_name }}"</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: "{{ store_name }}"<br>Store location: "{{ store_location }}"</p></body></html>'
 
   EmptyItemMailTemplateText:
     Type: String
-    Default: "An item in store \"{{ store_name }}\" has run out!\nItem details:\nItem ID: {{ item_id }}\nItem name: \"{{ item_name }}\"\nStore details:\nStore ID: {{ store_id }}\nStore name: \"{{ store_name }}\"\nStore location: \"{{ store_location }}\""
+    Default: 'An item in store "{{ store_name }}" has run out!\nItem details:\nItem ID: {{ item_id }}\nItem name: "{{ item_name }}"\nStore details:\nStore ID: {{ store_id }}\nStore name: "{{ store_name }}"\nStore location: "{{ store_location }}"'
 
   EmptyItemMailTemplateSubject:
     Type: String
     Default: "PaaS-HaaS Empty Item Notification"
 
-  EmptyItemMailSourceAddress:
+  MailSourceAddress:
     Type: String
     Default: notifications.paashaas@gmail.com
 
-  EmptyItemMailDestAddress:
+  MailDestAddress:
     Type: String
     Default: dylankoster40@gmail.com
 
@@ -34,7 +34,7 @@ Resources:
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
-      EmailIdentity: "notifications.paashaas@gmail.com"
+      EmailIdentity: !Ref MailSourceAddress
 
   EmptyItemMailTemplate:
     Type: AWS::SES::Template
@@ -213,8 +213,8 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
-          SES_EMAIL_SOURCE: !Ref EmptyItemMailSourceAddress
-          SES_EMAIL_DEST: !Ref EmptyItemMailDestAddress
+          SES_EMAIL_SOURCE: !Ref MailSourceAddress
+          SES_EMAIL_DEST: !Ref MailDestAddress
 
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
