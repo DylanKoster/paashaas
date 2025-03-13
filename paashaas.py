@@ -52,7 +52,7 @@ def translate_config_value_to_template(value: str) -> str:
 
     This turns all URL unusable symbols to URL encoded symbols.
     """
-    return value.replace(" ", "\ ").replace('\n', '\t\n')
+    return value.replace(" ", "\ ")
 
 def create_args() -> argparse.Namespace:
     """
@@ -159,5 +159,5 @@ if __name__ == "__main__":
     template: PaashaasConfig = load_template(args.template)
 
     # clean(args.path)
-    build(args.path)
+    # build(args.path)
     deploy(template, args.path)
