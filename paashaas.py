@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 """
-Parses a SAM template.yaml, searches for any DynamoDB table specifications and creates local DynamoDB tables based on
-these specifications. 
+Main PaaS-HaaS python file. Builds and Deploys the PaaS-HaaS API to AWS using AWS configuration and custom configuration
+using the --path (-p) parameter.
+
+Usage: python3 paas-haas.py [-p/--path PATH] template_directory
 """
 
 import os
@@ -10,6 +12,7 @@ from dataclasses import dataclass
 import subprocess
 import argparse
 
+# Dataclasses for automatic conversion from dictionary.
 @dataclass
 class EmptyItemNotification:        
     subject: str
@@ -27,23 +30,46 @@ class PaashaasConfig:
 
     stack_name: str = None
 
+# Helper functions
 def translate_config_key_to_template(name: str) -> str:
+    """
+    Translate a key from the configuration file to a key usable in an AWS SAM template file.
+
+    This does the following: 
+        - Capitalizes the first letter.
+        - Capilatizes letters directly after underscores.
+        - Removes all underscores (_)
+
+    Examples:
+        - mail_dest_address -> MailDestAddress
+        - empty_item_mail_template -> EmptyItemMailTemplate
+    """
     return ''.join(map(lambda v: v.capitalize(), name.split("_")))  
 
 def translate_config_value_to_template(value: str) -> str:
+    """
+    Translate a value from the configuration file to a value usable in an AWS SAM template file.
+
+    This turns all URL unusable symbols to URL encoded symbols.
+    """
     return value.replace(" ", "\ ").replace('\n', '\t\n')
 
 def create_args() -> argparse.Namespace:
+    """
+    Creates the ArgumentParser used for executing PaaS-HaaS.
+    """
     parser = argparse.ArgumentParser(
                         prog='PaaS-HaaS',
                         description='Build and deploy a custom PaaS-HaaS instance using your configuration.')
     parser.add_argument('template', help="The path to the template file.")
     parser.add_argument('-p', '--path', help="The path of the PaaS-HaaS folder.", default="./paas-haas")
+
     return parser.parse_args()
 
+# Main functionality
 def load_template(file_path: str="template.yml") -> PaashaasConfig:
     """
-    Initialize PyYAML custom constructors and parse the file stored at file_path.
+    Initialize PyYAML custom constructors and parse the file stored at file_path into an PaashaasConfig object.
     """
     try:
         with open(file_path, "r") as file:
@@ -56,16 +82,23 @@ def load_template(file_path: str="template.yml") -> PaashaasConfig:
         exit(1)
 
 def clean(path: str) -> None:
+    """
+    Removes the build destination (.aws-sam) inside of path.
+    """
     os.remove(f"{path}/.aws-sam")
 
 def build(path: str):
-    print("Starting SAM build...")
+    """
+    Executes the sam build command in the path directory. Captures stdout and stderr. Stdout is printed in real time and
+    stderr is printed iff the return code is not 0.
+    """
+    print("Starting SAM build...", end="\n\n")
     
     with subprocess.Popen(f"cd {path} && sam build", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True) as process:
         for stdout_line in iter(process.stdout.readline, ""):
             print(stdout_line) 
         
-        stdout, stderr = process.communicate()
+        _, stderr = process.communicate()
 
 
     return_code = process.wait()
@@ -74,10 +107,16 @@ def build(path: str):
         print("\n  " + stderr)
         exit(1)
 
-    print("Build succesful!")
+    print("\nBuild succesful!", end="\n\n")
 
 def deploy(template: PaashaasConfig, path: str) -> None:
-    print("Starting SAM deployment...")
+    """
+    Executes the sam deploy command in the path directory. Captures stdout and stderr. Stdout is printed in real time and
+    stderr is printed iff the return code is not 0.
+
+    All parameters in template are first translated to valid --parameters-override values.
+    """
+    print("\nStarting SAM deployment...", end="\n\n")
 
     cmd: str = "sam deploy --parameter-overrides "
     parameters = []
@@ -86,12 +125,11 @@ def deploy(template: PaashaasConfig, path: str) -> None:
 
         trans_key: str = translate_config_key_to_template(key)
         
+        # If current item is mail template, first traverse that object.
         if key == "empty_item_mail_template":
             for key_sub, value_sub in value.items():
                 trans_key_sub = translate_config_key_to_template(key_sub)
                 trans_value: str = translate_config_value_to_template(value_sub)
-
-                print(f"debug: {value_sub}")
 
                 parameters.append(f"{trans_key}{trans_key_sub}=\"{trans_value}\"")
 
@@ -100,14 +138,12 @@ def deploy(template: PaashaasConfig, path: str) -> None:
 
     
     cmd += " ".join(parameters)
-    print(cmd)
-    process = subprocess.Popen(f"cd {path} && {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    stdout, stderr = process.communicate()
 
-    if stdout:
-        print(stdout)
-    if stderr:
-        print(stderr)
+    with subprocess.Popen(f"cd {path} && {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True) as process:
+        for stdout_line in iter(process.stdout.readline, ""):
+            print(stdout_line, end="")
+
+        _, stderr = process.communicate()
 
     return_code = process.wait()
     if return_code != 0:
@@ -115,7 +151,7 @@ def deploy(template: PaashaasConfig, path: str) -> None:
         print("\n  " + stderr)
         exit(1)
 
-    print("Deployment succesful!")
+    print("\nDeployment succesful!", end="\n\n")
 
 if __name__ == "__main__":
     args: argparse.Namespace = create_args()
@@ -123,5 +159,5 @@ if __name__ == "__main__":
     template: PaashaasConfig = load_template(args.template)
 
     # clean(args.path)
-    # build(args.path)
+    build(args.path)
     deploy(template, args.path)
