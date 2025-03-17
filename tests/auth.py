@@ -35,11 +35,11 @@ if __name__ == '__main__':
         req = signed_request('POST', BASE_URL + '/stores', {"name": "store", "location": "location"})
         response = requests.request('POST', BASE_URL + '/stores', headers=dict(req.headers), data=req.data, timeout=5)
         response.raise_for_status()
-        id = response.json()['id']
+        store_id = response.json()['id']
         print(f'Response Status: {response.status_code}')
         print(f'Response Body: {response.content.decode("utf-8")}')
-        req2 = signed_request('GET', BASE_URL + '/stores/' + id)
-        response = requests.request('GET', BASE_URL + '/stores/' + id, headers=dict(req2.headers), timeout=5)
+        req2 = signed_request('GET', BASE_URL + '/stores/' + store_id)
+        response = requests.request('GET', BASE_URL + '/stores/' + store_id, headers=dict(req2.headers), timeout=5)
         print(f'Response Status: {response.status_code}')
         print(f'Response Body: {response.content.decode("utf-8")}')
     except Exception as e:
