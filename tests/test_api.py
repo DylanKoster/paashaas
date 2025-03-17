@@ -4,8 +4,8 @@ import httpx
 import time
 import auth
 
-BASE_URL = "https://bgwljg4yk7.execute-api.eu-west-1.amazonaws.com/Prod"
-# BASE_URL = "http://localhost:3000"
+# BASE_URL = "https://bgwljg4yk7.execute-api.eu-west-1.amazonaws.com/Prod"
+BASE_URL = "http://localhost:3000"
 
 def test_create_store():
     # response = auth.signed_request("POST", BASE_URL + "/stores/", {"name": "teststore", "location": "testloc"})
