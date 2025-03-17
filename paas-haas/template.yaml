@@ -121,24 +121,24 @@ Resources:
             RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}
             Method: get
-            Auth:
-              Authorizer: AWS_IAM
+            # Auth:
+            #   Authorizer: AWS_IAM
         addStore:
           Type: Api
           Properties:
             RestApiId: !Ref paashaasApi
             Path: /stores
             Method: post
-            Auth:
-              Authorizer: AWS_IAM
+            # Auth:
+            #   Authorizer: AWS_IAM
         alterStore:
           Type: Api
           Properties:
             RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}
             Method: put
-            Auth:
-              Authorizer: AWS_IAM
+            # Auth:
+            #   Authorizer: AWS_IAM
 
   itemsFunction:
     Type: AWS::Serverless::Function
@@ -174,16 +174,16 @@ Resources:
             RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items
             Method: post
-            Auth:
-              Authorizer: AWS_IAM
+            # Auth:
+            #   Authorizer: AWS_IAM
         alterItem:
           Type: Api
           Properties:
             RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items/{item_id}
             Method: put
-            Auth:
-              Authorizer: AWS_IAM
+            # Auth:
+            #   Authorizer: AWS_IAM
 
   ordersFunction:
     Type: AWS::Serverless::Function
@@ -207,8 +207,8 @@ Resources:
             RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders
             Method: get
-            Auth:
-              Authorizer: AWS_IAM
+            # Auth:
+            #   Authorizer: AWS_IAM
         getOrder:
           Type: Api
           Properties:
