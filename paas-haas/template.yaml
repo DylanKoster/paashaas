@@ -9,12 +9,51 @@ Globals:
   Function:
     Timeout: 30
 
+Parameters:
+  EmptyItemMailTemplateHtml:
+    Type: String
+    Default: '<h1>An item in store "{{ store_name }}" has run out!</h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: "{{ item_name }}"</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: "{{ store_name }}"<br>Store location: "{{ store_location }}"</p>'
+
+  EmptyItemMailTemplateText:
+    Type: String
+    Default: "An item in store \"{{ store_name }}\" has run out!\nItem details:\nItem ID: {{ item_id }}\nItem name: \"{{ item_name }}\"\nStore details:\nStore ID: {{ store_id }}\nStore name: \"{{ store_name }}\"\nStore location: \"{{ store_location }}\""
+
+  EmptyItemMailTemplateSubject:
+    Type: String
+    Default: "PaaS-HaaS Empty Item Notification"
+
+  EmptyItemMailSourceAddress:
+    Type: String
+    Default: notifications.paashaas@gmail.com
+
+  EmptyItemMailDestAddress:
+    Type: String
+    Default: dylankoster40@gmail.com
+
 Resources:
+  paashaasApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      # Description: 'API with IAM authorization'
+      # Auth:
+      #   DefaultAuthorizer: AWS_IAM #sets AWS_IAM auth for all methods in this API
+
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: "notifications.paashaas@gmail.com"
 
+  EmptyItemMailTemplate:
+    Type: AWS::SES::Template
+    Properties:
+      Template:
+        TemplateName: EmptyItemMailTemplate
+        SubjectPart: !Ref EmptyItemMailTemplateSubject
+        TextPart: !Ref EmptyItemMailTemplateText
+        HtmlPart: !Ref EmptyItemMailTemplateHtml
+
+  # Roles
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -48,10 +87,20 @@ Resources:
                 Resource: !GetAtt ItemsTable.StreamArn
               - Effect: Allow
                 Action:
+                  - ses:SendTemplatedEmail
+                Resource: arn:aws:ses:eu-west-1:950654245778:template/EmptyItemMailTemplate
+              - Effect: Allow
+                Action:
                   - ses:SendEmail
                   - ses:SendRawEmail
+                  - ses:SendTemplatedEmail
                 Resource: arn:aws:ses:eu-west-1:950654245778:identity/*
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                Resource: !GetAtt StoresTable.Arn
 
+  # Lambda function definitions
   storesFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -69,18 +118,27 @@ Resources:
         getStores:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}
             Method: get
+            Auth:
+              Authorizer: AWS_IAM
         addStore:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores
             Method: post
+            Auth:
+              Authorizer: AWS_IAM
         alterStore:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}
             Method: put
+            Auth:
+              Authorizer: AWS_IAM
 
   itemsFunction:
     Type: AWS::Serverless::Function
@@ -101,23 +159,31 @@ Resources:
         getAllItems:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items
             Method: get
         getItem:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items/{item_id}
             Method: get
         addItem:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items
             Method: post
+            Auth:
+              Authorizer: AWS_IAM
         alterItem:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items/{item_id}
             Method: put
+            Auth:
+              Authorizer: AWS_IAM
 
   ordersFunction:
     Type: AWS::Serverless::Function
@@ -138,30 +204,33 @@ Resources:
         getAllOrders:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders
             Method: get
+            Auth:
+              Authorizer: AWS_IAM
         getOrder:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders/{order_id}
             Method: get
         addOrder:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders
             Method: post
         alterOrder:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders/{order_id}
             Method: put
 
   notificationsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Policies:
-        - SESCrusPolicy:
-          IdentityName: "dylankoster40@gmail.com"
       CodeUri: lambda/notifications/
       Handler: notifications.lambda_handler
       Layers:
@@ -169,10 +238,14 @@ Resources:
       Runtime: python3.13
       Architectures:
         - x86_64
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref StoresTable
       Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
-          SES_EMAIL_FROM: "dylankoster40@example.com"
+          SES_EMAIL_SOURCE: !Ref EmptyItemMailSourceAddress
+          SES_EMAIL_DEST: !Ref EmptyItemMailDestAddress
 
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
@@ -183,6 +256,7 @@ Resources:
       CompatibleRuntimes:
         - python3.13
 
+  # Database table definitions
   StoresTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -225,6 +299,7 @@ Resources:
           KeyType: HASH
       BillingMode: PAY_PER_REQUEST
 
+  # DynamoDB stream filter
   EventSourceItemsTableStream:
     Type: AWS::Lambda::EventSourceMapping
     Properties:
@@ -239,12 +314,12 @@ Resources:
 
 Outputs:
   NotificationsLambda:
-    Description: "ARN of My Lambda Function"
+    Description: "Notifications Lambda Function ARN"
     Value: !GetAtt notificationsFunction.Arn
 
   storesApi:
     Description: "API Gateway endpoint URL for Prod stage for stores function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"
+    Value: !Sub "https://${paashaasApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"
   storesFunction:
     Description: "Stores Lambda Function ARN"
     Value: !GetAtt storesFunction.Arn
@@ -254,7 +329,7 @@ Outputs:
 
   itemsApi:
     Description: "API Gateway endpoint URL for Prod stage for items function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/items/"
+    Value: !Sub "https://${paashaasApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/items/"
   itemsFunction:
     Description: "Items Lambda Function ARN"
     Value: !GetAtt itemsFunction.Arn
@@ -264,7 +339,7 @@ Outputs:
 
   ordersApi:
     Description: "API Gateway endpoint URL for Prod stage for orders function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/orders/"
+    Value: !Sub "https://${paashaasApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/orders/"
   ordersFunction:
     Description: "Orders Lambda Function ARN"
     Value: !GetAtt ordersFunction.Arn
