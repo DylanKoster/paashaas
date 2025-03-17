@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  Paas-Haas API
+  PaaS-HaaS API
 
   API for creating, removing, and altering stores, items and orders with PaaS-HaaS.
 
@@ -10,23 +10,45 @@ Globals:
     Timeout: 30
 
 Parameters:
+  ApiAuthenticator:
+    Type: String
+    Default: NONE
+
   EmptyItemMailTemplateHtml:
     Type: String
-    Default: '<h1>An item in store "{{ store_name }}" has run out!</h1><p>Item details:<br>Item ID: {{ item_id }}<br>Item name: "{{ item_name }}"</p><p>Store details:<br>Store ID: {{ store_id }}<br>Store name: "{{ store_name }}"<br>Store location: "{{ store_location }}"</p>'
+    Default: |
+      <html><body>
+      <h1>An item in store "{{store_name}}" has run out!</h1>
+      <p>Item details:<br>
+      Item ID: {{item_id}}<br>
+      Item name: "{{item_name}}"</p>
+      <p>Store details:<br>
+      Store ID: {{store_id}}<br>
+      Store name: "{{store_name}}"<br>
+      Store location: "{{store_location}}"</p>
+      </body></html>
 
   EmptyItemMailTemplateText:
     Type: String
-    Default: "An item in store \"{{ store_name }}\" has run out!\nItem details:\nItem ID: {{ item_id }}\nItem name: \"{{ item_name }}\"\nStore details:\nStore ID: {{ store_id }}\nStore name: \"{{ store_name }}\"\nStore location: \"{{ store_location }}\""
+    Default: |
+      An item in store "{{store_name}}" has run out!
+      Item details:
+      Item ID: {{item_id}}
+      Item name: "{{item_name}}"
+      Store details:
+      Store ID: {{store_id}}
+      Store name: "{{store_name}}"
+      Store location: "{{store_location}}"
 
   EmptyItemMailTemplateSubject:
     Type: String
     Default: "PaaS-HaaS Empty Item Notification"
 
-  EmptyItemMailSourceAddress:
+  MailSourceAddress:
     Type: String
     Default: notifications.paashaas@gmail.com
 
-  EmptyItemMailDestAddress:
+  MailDestAddress:
     Type: String
     Default: dylankoster40@gmail.com
 
@@ -42,7 +64,7 @@ Resources:
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
-      EmailIdentity: "notifications.paashaas@gmail.com"
+      EmailIdentity: !Ref MailSourceAddress
 
   EmptyItemMailTemplate:
     Type: AWS::SES::Template
@@ -122,7 +144,7 @@ Resources:
             Path: /stores/{store_id}
             Method: get
             Auth:
-              Authorizer: AWS_IAM
+              Authorizer: !Ref ApiAuthenticator
         addStore:
           Type: Api
           Properties:
@@ -130,7 +152,7 @@ Resources:
             Path: /stores
             Method: post
             Auth:
-              Authorizer: AWS_IAM
+              Authorizer: !Ref ApiAuthenticator
         alterStore:
           Type: Api
           Properties:
@@ -138,7 +160,7 @@ Resources:
             Path: /stores/{store_id}
             Method: put
             Auth:
-              Authorizer: AWS_IAM
+              Authorizer: !Ref ApiAuthenticator
 
   itemsFunction:
     Type: AWS::Serverless::Function
@@ -175,7 +197,7 @@ Resources:
             Path: /stores/{store_id}/items
             Method: post
             Auth:
-              Authorizer: AWS_IAM
+              Authorizer: !Ref ApiAuthenticator
         alterItem:
           Type: Api
           Properties:
@@ -183,7 +205,7 @@ Resources:
             Path: /stores/{store_id}/items/{item_id}
             Method: put
             Auth:
-              Authorizer: AWS_IAM
+              Authorizer: !Ref ApiAuthenticator
 
   ordersFunction:
     Type: AWS::Serverless::Function
@@ -208,7 +230,7 @@ Resources:
             Path: /stores/{store_id}/orders
             Method: get
             Auth:
-              Authorizer: AWS_IAM
+              Authorizer: !Ref ApiAuthenticator
         getOrder:
           Type: Api
           Properties:
@@ -244,8 +266,8 @@ Resources:
       Role: !GetAtt LambdaExecutionRole.Arn
       Environment:
         Variables:
-          SES_EMAIL_SOURCE: !Ref EmptyItemMailSourceAddress
-          SES_EMAIL_DEST: !Ref EmptyItemMailDestAddress
+          SES_EMAIL_SOURCE: !Ref MailSourceAddress
+          SES_EMAIL_DEST: !Ref MailDestAddress
 
   sharedLayer:
     Type: AWS::Serverless::LayerVersion
