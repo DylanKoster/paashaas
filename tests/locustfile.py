@@ -135,12 +135,11 @@ class StoreUser (HttpUser ):
 
         req2 = auth.signed_request("GET", f"{BASE_URL}/stores/{store_id}/orders/")
         response = self.client.get(f"{BASE_URL}/stores/{store_id}/orders/", headers=dict(req2.headers))
-        # assert response.status_code == 200
-        # TODO double check this response
-        # data = response.json()
-        # assert isinstance(data, list)
-        # assert len(data) > 0
-        # assert data[0]["store_id"] == store_id
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list)
+        assert len(data) > 0
+        assert data[0]["store_id"] == store_id
 
     @task(10)
     def get_order(self):

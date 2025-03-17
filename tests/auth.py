@@ -22,7 +22,7 @@ def signed_request(method, url, data=None, service='execute-api', region=REGION)
     request = AWSRequest(
         method,
         url,
-        data=json.dumps(data),
+        data=json.dumps(data) if data else {},
         headers={'Content-Type': 'application/json'} if data else {}
     )
 
