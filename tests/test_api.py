@@ -3,8 +3,8 @@ from datetime import datetime, timedelta
 import httpx
 import time
 
-BASE_URL = "https://bgwljg4yk7.execute-api.eu-west-1.amazonaws.com/Prod"
-# BASE_URL = "http://localhost:3000"
+# BASE_URL = "https://bgwljg4yk7.execute-api.eu-west-1.amazonaws.com/Prod"
+BASE_URL = "http://localhost:3000"
 
 def test_create_store():
     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
