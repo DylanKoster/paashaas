@@ -8,7 +8,6 @@ import auth
 BASE_URL = "http://localhost:3000"
 
 def test_create_store():
-    # response = auth.signed_request("POST", BASE_URL + "/stores/", {"name": "teststore", "location": "testloc"})
     response = httpx.post(BASE_URL + "/stores/", json={"name": "teststore", "location": "testloc"})
     assert response.status_code == 200
     data = response.json()
