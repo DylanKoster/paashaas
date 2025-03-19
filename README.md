@@ -4,7 +4,7 @@
 
 [![Contributors](https://img.shields.io/badge/Contributors-4-green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/graphs/contributors)
 [![Pull Requests](https://img.shields.io/badge/Pull%20Requests--green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/pulls)
-[![Branches](https://img.shields.io/badge/Branches--green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/pulls)
+[![Branches](https://img.shields.io/badge/Branches--green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/branches)
 [![Issues](https://img.shields.io/badge/Issues--green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/issues)
 [![Insight](https://img.shields.io/badge/Insight--green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/pulse/monthly)
 
@@ -115,7 +115,7 @@ PaaS-HaaS simplifies the management of goods by automating the monitoring of sto
 ## How It Works
 
 **1. Configure Your Project:**  
-Start by filling out a simple configuration file to define your inventory management system. No coding required—just describe your project setup, preferences, and features.
+Start by filling out a simple configuration file to define your inventory management system.
 
 **2. Automated Setup:**  
 Once the configuration file is complete, the platform uses AWS SAM (Serverless Application Model) to automatically generate and set up all necessary services.
@@ -124,7 +124,7 @@ Once the configuration file is complete, the platform uses AWS SAM (Serverless A
 With a single script, your entire application is build and deployed to AWS. There's no need to manage servers or handle complex infrastructure manually.
 
 **4. Serverless Architecture:**  
-Your application runs fully serverless using AWS Lambda. It leverages DynamoDB for data storage and Amazon SES (Simple Email Service) for notifications and communications.
+Your application runs fully serverless using AWS Lambda. It leverages DynamoDB for data storage and Amazon SES (Simple Email Service) for notifications.
 
 **5. Cloud-Native Scalability:**  
 Everything lives in the cloud, so your system scales automatically. When it's time for an update, just run the deployment script again—your new version goes live instantly with zero downtime.
@@ -157,7 +157,7 @@ These are all the services that were used to for this project.
 [![DynamoDB][DynamoDB]][DynamoDB-url]
 [![AWS SAM][SAM]][SAM-url]
 [![SES][SES]][SES-url]
-
+[![IAM][IAM]][IAM-url]
 
 </div>
 
@@ -169,7 +169,7 @@ This section provides instructions on settup up the whole platform on aws from y
 
 ### Prerequisites
 
-An version of python have to be isntalled on your device, preferabally python version 3.13 or newer. This can be donwloaded from [here](https://www.python.org/downloads/).
+An version of python have to be installed on your device, preferabally python version 3.13 or newer. This can be donwloaded from [here](https://www.python.org/downloads/).
 Apart from python AWS SAM should be installed on your device for running the automatic deployment. SAM can be donwloaded from [here](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/install-sam-cli.html).
 
 ### Installation
@@ -217,9 +217,12 @@ We would like to express our gratitude to the following individuals and organiza
 [DynamoDB]: https://img.shields.io/badge/DynamoDB-4053D6?style=for-the-badge&logo=amazon-dynamodb&logoColor=white
 [DynamoDB-url]: https://aws.amazon.com/dynamodb/
 
-[SAM]: https://img.shields.io/badge/AWS%20SAM-1D72B8?style=for-the-badge&logo=amazonaws&logoColor=white
+[SAM]: https://img.shields.io/badge/AWS%20SAM-1D72B8?style=for-the-badge&logo=amazonsam&logoColor=white
 [SAM-url]: https://aws.amazon.com/serverless/sam/
 
 [SES]: https://img.shields.io/badge/AWS%20SES-232F3E?style=for-the-badge&logo=amazonses&logoColor=white
 [SES-url]: https://aws.amazon.com/ses/
+
+[IAM]: https://img.shields.io/badge/AWS%20IAM-14a86b?style=for-the-badge&logo=amazoniam&logoColor=white
+[IAM-url]: https://aws.amazon.com/iam/
 
