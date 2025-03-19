@@ -281,14 +281,14 @@ Resources:
     Properties:
       TableName: Items
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
         - AttributeName: store_id
+          AttributeType: S
+        - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: id
-          KeyType: HASH
         - AttributeName: store_id
+          KeyType: HASH
+        - AttributeName: id
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       StreamSpecification:
@@ -299,11 +299,15 @@ Resources:
     Properties:
       TableName: Orders
       AttributeDefinitions:
+        - AttributeName: store_id
+          AttributeType: S
         - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: store_id
           KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
 
   # DynamoDB stream filter
