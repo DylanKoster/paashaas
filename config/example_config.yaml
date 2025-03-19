@@ -3,8 +3,8 @@
 name: PaaS-HaaS
 
 # version
-# The current version of your project: In the format {major}.{minor}.{patch}
-version: 1.0.0
+# The current version of your project: In the format {major}.{minor}
+version: 1.0
 
 # mail_source_address
 # The address from which the empty item notification email is sent.
@@ -35,4 +35,4 @@ stack_name: paas-haas
 
 # aws_region:
 # The AWS region name to where your project should be deployed.
-aws_region: eu-central-1
+aws_region: eu-north-1

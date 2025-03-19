@@ -184,5 +184,3 @@ cython_debug/
 
 # AWS Sam build files and dependencies
 */.aws-sam/*
-
-paas-haas/samconfig.toml

@@ -85,12 +85,6 @@ def load_template(file_path: str="template.yml") -> PaashaasConfig:
         print("Failed parsing yaml file, is it the correct format?")
         exit(1)
 
-def clean(path: str) -> None:
-    """
-    Removes the build destination (.aws-sam) inside of path.
-    """
-    os.remove(f"{path}/.aws-sam")
-
 def build(path: str):
     """
     Executes the sam build command in the path directory. Captures stdout and stderr. Stdout is printed in real time and
@@ -179,6 +173,5 @@ if __name__ == "__main__":
     template: PaashaasConfig = load_template(args.template)
     create_samconfig(args.config, template, args.path)
 
-    # clean(args.path)
-    # build(args.path)
-    # deploy(template, args.path)
+    build(args.path)
+    deploy(template, args.path)
