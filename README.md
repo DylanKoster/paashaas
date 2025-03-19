@@ -19,9 +19,6 @@
 
 </div>
 <div align="center">
-    <!-- <h1>PaaS-HaaS</h1>
-    <div style="font-size: 75px; line-height: 1.2;">Paas-Haas</div>
-    <div style="font-size: 20px;">Platform as a Service - Handling and Storage</div> -->
     <h3>Platform as a Service - Handling and Storage</h3>
     <br/>
     <p align="center">
@@ -71,21 +68,81 @@ PaaS-HaaS simplifies the management of goods by automating the monitoring of sto
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+## Available endpoints
+
+#### **Store Management**
+- **GET `/stores/`**  
+  Retrieve a list of all stores.
+  
+- **GET `/stores/{store_id}`**  
+  Retrieve a specific store by its ID.
+  
+- **POST `/stores/`**  
+  Create a new store.
+  
+- **PUT `/stores/{store_id}`**  
+  Update an existing store's details by its ID.
+
+#### **Item Management**
+- **POST `/stores/{store_id}/items/`**  
+  Create a new item for a specific store.
+  
+- **GET `/stores/{store_id}/items/`**  
+  Retrieve all items in a specific store.
+
+- **GET `/stores/{store_id}/items/{item_id}`**  
+  Retrieve a specific item by its ID within a store.
+
+- **PUT `/stores/{store_id}/items/{item_id}`**  
+  Update the details of a specific item by its ID within a store.
+
+#### **Order Management**
+- **POST `/stores/{store_id}/orders/`**  
+  Create a new order for a specific store.
+  
+- **GET `/stores/{store_id}/orders/`**  
+  Retrieve all orders for a specific store.
+  
+- **GET `/stores/{store_id}/orders/{order_id}`**  
+  Retrieve a specific order by its ID within a store.
+  
+- **PUT `/stores/{store_id}/orders/{order_id}`**  
+  Update an existing order's details by its ID within a store.
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## How It Works
 
-1. **Assignment Submission**: A student submits their assignment through the platform.
-2. **AI Analysis**: The submission is processed by our LLM, which examines the code for potential improvements.
-3. **Review Assignment**: The analyzed submission is then assigned to another student for review.
-4. **Guided Review**: The reviewing student receives the LLM's suggestions, aiding them in providing constructive feedback.
-5. **Feedback Delivery**: The review is sent back to the original student, helping them learn and improve their work based on peer and AI-assisted feedback.
+**1. Configure Your Project:**  
+Start by filling out a simple configuration file to define your inventory management system. No coding required—just describe your project setup, preferences, and features.
+
+**2. Automated Setup:**  
+Once the configuration file is complete, the platform uses AWS SAM (Serverless Application Model) to automatically generate and set up all necessary services.
+
+**3. One-Command Deployment:**  
+With a single script, your entire application is build and deployed to AWS. There's no need to manage servers or handle complex infrastructure manually.
+
+**4. Serverless Architecture:**  
+Your application runs fully serverless using AWS Lambda. It leverages DynamoDB for data storage and Amazon SES (Simple Email Service) for notifications and communications.
+
+**5. Cloud-Native Scalability:**  
+Everything lives in the cloud, so your system scales automatically. When it's time for an update, just run the deployment script again—your new version goes live instantly with zero downtime.
+
+**6. Customize Anytime:**  
+Need to change something? Simply edit the configuration file and adjust settings to fit your needs. No infrastructure rework required.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Benefits
 
-- **For Teachers**: Streamlined assignment management and enhanced student engagement.
-- **For Students**: Improved learning outcomes through constructive peer feedback and AI-guided review processes.
-- **Quality Feedback**: Higher quality and more insightful reviews lead to better learning experiences.
+**Fast & Effortless Deployment**  
+Deploy your inventory management system to AWS with just a single script—no manual setup or server provisioning required.
+
+**Fully Serverless**  
+Built entirely on AWS Lambda, DynamoDB, and Amazon SES, the platform eliminates the need for managing or maintaining servers, reducing overhead and complexity.
+
+**Cloud-Native Scalability**  
+Thanks to its cloud-native architecture, the system automatically scales with your workload, whether you're handling ten items or ten thousand.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -148,7 +205,6 @@ And that's it! The PaaS-HaaS inventory managment system should now be up and run
 We would like to express our gratitude to the following individuals and organizations for their support and contributions to this project:
 
 - The [template](https://github.com/othneildrew/Best-README-Template) for this README
-- We used the [OpenAI API](https://openai.com/index/openai-api/) to generate the feedback hints.
 - Paul for his guidance and insightful feedback throughout the development process.
 - The UVA for their valuable resources.
 
