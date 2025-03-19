@@ -8,11 +8,21 @@
 [![Issues](https://img.shields.io/badge/Issues--green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/issues)
 [![Insight](https://img.shields.io/badge/Insight--green.svg?style=for-the-badge)](https://github.com/DylanKoster/paashaas/pulse/monthly)
 
+<pre>
+ _____             _____       _    _              _____ 
+|  __ \           / ____|     | |  | |            / ____|
+| |__) |_ _  __ _| (___ ______| |__| | __ _  __ _| (___  
+|  ___/ _` |/ _` |\___ \______|  __  |/ _` |/ _` |\___ \ 
+| |  | (_| | (_| |____) |     | |  | | (_| | (_| |____) |
+|_|   \__,_|\__,_|_____/      |_|  |_|\__,_|\__,_|_____/ 
+</pre>
+
 </div>
-<br />
 <div align="center">
+    <!-- <h1>PaaS-HaaS</h1>
     <div style="font-size: 75px; line-height: 1.2;">Paas-Haas</div>
-    <div style="font-size: 20px;">Platform as a Service - Handling and Storage</div>
+    <div style="font-size: 20px;">Platform as a Service - Handling and Storage</div> -->
+    <h3>Platform as a Service - Handling and Storage</h3>
     <br/>
     <p align="center">
     <strong>Paas-Haas</strong> is a powerful Platform-as-a-Service solution designed to simplify inventory management deployment. With a streamlined configuration-based setup, users can automatically deploy their system to AWS with minimal effort. Leveraging AWS Lambda for a fully serverless architecture, along with DynamoDB and Simple Email Service, Paas-Haas offers a scalable, efficient, and hassle-free way to manage inventory systems in the cloud.
