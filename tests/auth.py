@@ -6,8 +6,8 @@ from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 import json
 
-BASE_URL = 'https://bgwljg4yk7.execute-api.eu-west-1.amazonaws.com/Prod'
-REGION = 'eu-west-1'
+BASE_URL = 'https://gatbalc9kh.execute-api.eu-central-1.amazonaws.com/Prod'
+REGION = 'eu-central-1'
 
 ACCESS_KEY = 'AKIA52V3ITOJBSLN57UM'
 SECRET_KEY = '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'
@@ -26,7 +26,7 @@ def signed_request(method, url, data=None, service='execute-api', region=REGION)
         headers={'Content-Type': 'application/json'} if data else {}
     )
 
-    SigV4Auth(session.get_credentials(), service, region).add_auth(request)
+    # SigV4Auth(session.get_credentials(), service, region).add_auth(request)
     return request
 
 
