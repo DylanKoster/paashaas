@@ -1,3 +1,4 @@
 boto3
 pyyaml
 aws_cdk.aws_sam
+tomli-w

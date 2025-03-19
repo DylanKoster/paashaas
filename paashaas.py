@@ -11,6 +11,8 @@ import yaml
 from dataclasses import dataclass
 import subprocess
 import argparse
+import tomllib
+import tomli_w
 
 # Dataclasses for automatic conversion from dictionary.
 @dataclass
@@ -29,6 +31,7 @@ class PaashaasConfig:
     empty_item_mail_template: EmptyItemNotification = None
 
     stack_name: str = None
+    aws_region: str = 'eu-central-1'
 
 # Helper functions
 def translate_config_key_to_template(name: str) -> str:
@@ -63,6 +66,7 @@ def create_args() -> argparse.Namespace:
                         description='Build and deploy a custom PaaS-HaaS instance using your configuration.')
     parser.add_argument('template', help="The path to the template file.")
     parser.add_argument('-p', '--path', help="The path of the PaaS-HaaS folder.", default="./paas-haas")
+    parser.add_argument('-c', '--config', help="The path to the default samconfig.toml", default="./config/sam/samconfig.toml")
 
     return parser.parse_args()
 
@@ -153,11 +157,28 @@ def deploy(template: PaashaasConfig, path: str) -> None:
 
     print("\nDeployment succesful!", end="\n\n")
 
+def create_samconfig(template: str, config: PaashaasConfig, path: str) -> None:
+    """
+    Create a new samconfig.toml based on the given config.
+    """
+    with open(template, 'rb') as f:
+        toml: dict[str, any] = tomllib.load(f)
+
+        if (config.stack_name): 
+            toml['default']['global']['parameters']['stack_name'] = config.stack_name
+            toml['default']['deploy']['parameters']['s3_prefix'] = config.stack_name
+        if (config.version): toml['version'] = config.version
+        if (config.aws_region): toml['default']['deploy']['parameters']['region'] = config.aws_region
+        
+        with open(f"{path}/samconfig.toml", "wb+") as f:
+            tomli_w.dump(toml, f)
+
 if __name__ == "__main__":
     args: argparse.Namespace = create_args()
 
     template: PaashaasConfig = load_template(args.template)
+    create_samconfig(args.config, template, args.path)
 
     # clean(args.path)
     # build(args.path)
-    deploy(template, args.path)
+    # deploy(template, args.path)
