@@ -92,17 +92,10 @@ def build(path: str):
     """
     print("Starting SAM build...", end="\n\n")
     
-    with subprocess.Popen(f"cd {path} && sam build", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True) as process:
-        for stdout_line in iter(process.stdout.readline, ""):
-            print(stdout_line) 
-        
-        _, stderr = process.communicate()
+    return_code: int = os.system(f"cd {path} && sam build")
 
-
-    return_code = process.wait()
     if return_code != 0:
-        print("Something went wrong while building the template file! Error message:")
-        print("\n  " + stderr)
+        print("Something went wrong while building the template file!")
         exit(1)
 
     print("\nBuild succesful!", end="\n\n")
@@ -119,7 +112,7 @@ def deploy(template: PaashaasConfig, path: str) -> None:
     cmd: str = "sam deploy --parameter-overrides "
     parameters = []
     for key, value in vars(template).items():
-        if value == None: continue
+        if value == None or key in ["stack_name", "aws_region", "version", "name"]: continue
 
         trans_key: str = translate_config_key_to_template(key)
         
@@ -137,16 +130,10 @@ def deploy(template: PaashaasConfig, path: str) -> None:
     
     cmd += " ".join(parameters)
 
-    with subprocess.Popen(f"cd {path} && {cmd}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True) as process:
-        for stdout_line in iter(process.stdout.readline, ""):
-            print(stdout_line, end="")
-
-        _, stderr = process.communicate()
-
-    return_code = process.wait()
+    return_code: int = os.system(f"cd {path} && {cmd}")
+    
     if return_code != 0:
-        print("Something went wrong while deploying the template file! Error message:")
-        print("\n  " + stderr)
+        print("Something went wrong while deploying the template file!")
         exit(1)
 
     print("\nDeployment succesful!", end="\n\n")
