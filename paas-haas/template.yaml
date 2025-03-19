@@ -49,6 +49,14 @@ Parameters:
     Default: dylankoster40@gmail.com
 
 Resources:
+  paashaasApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      # Description: 'API with IAM authorization'
+      # Auth:
+      #   DefaultAuthorizer: AWS_IAM #sets AWS_IAM auth for all methods in this API
+
   EmailIdentity:
     Type: AWS::SES::EmailIdentity
     Properties:
@@ -128,18 +136,22 @@ Resources:
         getStores:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}
             Method: get
         addStore:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores
             Method: post
         alterStore:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}
             Method: put
+
 
   itemsFunction:
     Type: AWS::Serverless::Function
@@ -160,21 +172,25 @@ Resources:
         getAllItems:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items
             Method: get
         getItem:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items/{item_id}
             Method: get
         addItem:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items
             Method: post
         alterItem:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/items/{item_id}
             Method: put
 
@@ -197,21 +213,25 @@ Resources:
         getAllOrders:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders
             Method: get
         getOrder:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders/{order_id}
             Method: get
         addOrder:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders
             Method: post
         alterOrder:
           Type: Api
           Properties:
+            RestApiId: !Ref paashaasApi
             Path: /stores/{store_id}/orders/{order_id}
             Method: put
 
@@ -261,14 +281,14 @@ Resources:
     Properties:
       TableName: Items
       AttributeDefinitions:
-        - AttributeName: id
-          AttributeType: S
         - AttributeName: store_id
+          AttributeType: S
+        - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: id
-          KeyType: HASH
         - AttributeName: store_id
+          KeyType: HASH
+        - AttributeName: id
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
       StreamSpecification:
@@ -279,11 +299,15 @@ Resources:
     Properties:
       TableName: Orders
       AttributeDefinitions:
+        - AttributeName: store_id
+          AttributeType: S
         - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: id
+        - AttributeName: store_id
           KeyType: HASH
+        - AttributeName: id
+          KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
 
   # DynamoDB stream filter
@@ -306,7 +330,7 @@ Outputs:
 
   storesApi:
     Description: "API Gateway endpoint URL for Prod stage for stores function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"
+    Value: !Sub "https://${paashaasApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/stores/"
   storesFunction:
     Description: "Stores Lambda Function ARN"
     Value: !GetAtt storesFunction.Arn
@@ -316,7 +340,7 @@ Outputs:
 
   itemsApi:
     Description: "API Gateway endpoint URL for Prod stage for items function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/items/"
+    Value: !Sub "https://${paashaasApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/items/"
   itemsFunction:
     Description: "Items Lambda Function ARN"
     Value: !GetAtt itemsFunction.Arn
@@ -326,7 +350,7 @@ Outputs:
 
   ordersApi:
     Description: "API Gateway endpoint URL for Prod stage for orders function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/orders/"
+    Value: !Sub "https://${paashaasApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/orders/"
   ordersFunction:
     Description: "Orders Lambda Function ARN"
     Value: !GetAtt ordersFunction.Arn

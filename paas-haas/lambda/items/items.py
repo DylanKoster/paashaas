@@ -1,5 +1,6 @@
 import json
 import boto3
+from boto3.dynamodb.conditions import Key
 from models import InventoryItem
 from decimal import Decimal
 from util import close_expired_orders
@@ -43,7 +44,10 @@ def lambda_handler(event, context):
 
 def get_items(store_id):
     close_expired_orders(orders_table, items_table)
-    response = items_table.scan(FilterExpression="store_id = :store_id", ExpressionAttributeValues={':store_id': store_id})
+    # response = items_table.scan(FilterExpression="store_id = :store_id", ExpressionAttributeValues={':store_id': store_id})
+    response = items_table.query(
+        KeyConditionExpression=Key('store_id').eq(store_id)
+    )
     items = response['Items']
     return {
         'statusCode': 200,
@@ -53,7 +57,7 @@ def get_items(store_id):
 
 def get_item(store_id, item_id):
     close_expired_orders(orders_table, items_table)
-    response = items_table.get_item(Key={'id': item_id, 'store_id': store_id})
+    response = items_table.get_item(Key={'store_id': store_id, 'id': item_id})
     item = response.get('Item')
     return {
         'statusCode': 200,

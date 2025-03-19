@@ -2,8 +2,9 @@ from freezegun import freeze_time
 from datetime import datetime, timedelta
 import httpx
 import time
+import auth
 
-# BASE_URL = "https://20j33qovtf.execute-api.eu-west-1.amazonaws.com/Prod"
+# BASE_URL = "https://hy2ek84ac1.execute-api.eu-central-1.amazonaws.com/Prod"
 BASE_URL = "http://localhost:3000"
 
 def test_create_store():
