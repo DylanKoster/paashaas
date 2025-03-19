@@ -46,7 +46,7 @@ def get_items(store_id):
     close_expired_orders(orders_table, items_table)
     # response = items_table.scan(FilterExpression="store_id = :store_id", ExpressionAttributeValues={':store_id': store_id})
     response = items_table.query(
-        KeyconditionExpression=Key('store_id').eq(store_id)
+        KeyConditionExpression=Key('store_id').eq(store_id)
     )
     items = response['Items']
     return {

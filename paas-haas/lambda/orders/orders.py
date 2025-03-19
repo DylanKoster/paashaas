@@ -46,7 +46,7 @@ def get_orders(store_id):
     close_expired_orders(orders_table, items_table)
     # response = orders_table.scan(FilterExpression="store_id = :store_id", ExpressionAttributeValues={':store_id': store_id})
     response = orders_table.query(
-        KeyconditionExpression=Key('store_id').eq(store_id)
+        KeyConditionExpression=Key('store_id').eq(store_id)
     )
     orders = response['Items']
     return {
@@ -57,7 +57,7 @@ def get_orders(store_id):
 
 def get_order(store_id, order_id):
     close_expired_orders(orders_table, items_table)
-    response = orders_table.get_item(Key={'id': order_id})
+    response = orders_table.get_item(Key={'store_id': store_id, 'id': order_id})
     order = response.get('Item')
     return {
         'statusCode': 200,
@@ -107,7 +107,7 @@ def alter_order(store_id, order_id, body):
     try:
         order = Order.model_validate(body)
         response = orders_table.update_item(
-            Key={'id': order_id},
+            Key={'store_id': store_id, 'id': order_id},
             UpdateExpression="SET #status = :status",
             ExpressionAttributeNames={
                 '#status': 'status',
