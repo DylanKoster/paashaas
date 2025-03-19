@@ -6,7 +6,7 @@ from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 import json
 
-BASE_URL = 'https://gatbalc9kh.execute-api.eu-central-1.amazonaws.com/Prod'
+BASE_URL = 'https://hy2ek84ac1.execute-api.eu-central-1.amazonaws.com/Prod'
 REGION = 'eu-central-1'
 
 ACCESS_KEY = 'AKIA52V3ITOJBSLN57UM'

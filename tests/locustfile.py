@@ -2,9 +2,9 @@ from locust import HttpUser, task, between
 import json
 import auth
 
-# run with: locust -f locustfile.py -u 10 -r 10 --host=https://gatbalc9kh.execute-api.eu-central-1.amazonaws.com
+# run with: locust -f locustfile.py -u 10 -r 10 --host=https://hy2ek84ac1.execute-api.eu-central-1.amazonaws.com
 
-BASE_URL = "https://gatbalc9kh.execute-api.eu-central-1.amazonaws.com/Prod"
+BASE_URL = "https://hy2ek84ac1.execute-api.eu-central-1.amazonaws.com/Prod"
 
 class StoreUser (HttpUser ):
     wait_time = between(1, 3)
