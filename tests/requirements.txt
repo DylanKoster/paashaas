@@ -2,3 +2,7 @@ pydantic
 pytest
 httpx
 freezegun
+locust
+requests
+boto3
+botocore
