@@ -67,7 +67,7 @@ def create_args() -> argparse.Namespace:
     parser.add_argument('template', help="The path to the template file.")
     parser.add_argument('-p', '--path', help="The path of the PaaS-HaaS folder.", default="./paas-haas")
     parser.add_argument('-c', '--config', help="The path to the default samconfig.toml", default="./config/sam/samconfig.toml")
-    parser.add_argument('--clean', action=argparse.BooleanOptionalAction)
+    parser.add_argument('--clean', action=argparse.BooleanOptionalAction, help="Cleans the remote AWS before deploying.")
 
     return parser.parse_args()
 
