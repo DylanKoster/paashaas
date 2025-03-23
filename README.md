@@ -74,53 +74,53 @@ Content type: application/json
 
 #### **Store Management**
 - **GET `/stores/`**  
-  Retrieve a list of all stores.
+  Retrieve a list of all stores. \
   Response: Array({id(str), name(str), location(str)})
   
 - **GET `/stores/{store_id}`**  
-  Retrieve a specific store by its ID.
+  Retrieve a specific store by its ID. \
   Repsonse: {id(str), name(str), location(str)}
   
 - **POST `/stores/`**  
-  Create a new store.
+  Create a new store. \
   Body: {name(str): required, location(str): required}
   
 - **PUT `/stores/{store_id}`**  
-  Update an existing store's details by its ID.
-  Required body: {name(str): optional, location(str): optional}
+  Update an existing store's details by its ID. \
+  Body: {name(str): optional, location(str): optional}
 
 #### **Item Management**
 - **POST `/stores/{store_id}/items/`**  
-  Create a new item for a specific store.
+  Create a new item for a specific store. \
   Body: {name(str): required, quantity(int): required, img(str): optional}
   
 - **GET `/stores/{store_id}/items/`**  
-  Retrieve all items in a specific store.
+  Retrieve all items in a specific store. \
   Response: Array({id(int), name(str), img(str), quantity(int), store_id(int)})
 
 - **GET `/stores/{store_id}/items/{item_id}`**  
-  Retrieve a specific item by its ID within a store.
+  Retrieve a specific item by its ID within a store. \
   Response: {id(int), name(str), img(str), quantity(int), store_id(int)}
 
 - **PUT `/stores/{store_id}/items/{item_id}`**  
-  Update the details of a specific item by its ID within a store.
+  Update the details of a specific item by its ID within a store. \
   Body: {name(str): optional, img(str): optional, quantity(int): optional, store_id(int): optional}
 
 #### **Order Management**
 - **POST `/stores/{store_id}/orders/`**  
-  Create a new order for a specific store.
+  Create a new order for a specific store. \
   Body: {store_id(int): required, Array({item_id(int): required, quantity(int): required}): required}
   
 - **GET `/stores/{store_id}/orders/`**  
-  Retrieve all orders for a specific store.
+  Retrieve all orders for a specific store. \
   Response: Array({id(str), store_id(str), status(str), creation_date(int), expiry_date(int), items(Array({item_id(int): required, quantity(int): required}))})
   
 - **GET `/stores/{store_id}/orders/{order_id}`**  
-  Retrieve a specific order by its ID within a store.
+  Retrieve a specific order by its ID within a store. \
   Response: {id(str), store_id(str), status(str), creation_date(int), expiry_date(int), items(Array({item_id(int), quantity(int)}))}
   
 - **PUT `/stores/{store_id}/orders/{order_id}`**  
-  Update an existing order's details by its ID within a store.
+  Update an existing order's details by its ID within a store. \
   Body: {Array({item_id(int): required, quantity(int): required}): optional}
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
