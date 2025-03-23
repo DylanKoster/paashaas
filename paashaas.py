@@ -67,6 +67,7 @@ def create_args() -> argparse.Namespace:
     parser.add_argument('template', help="The path to the template file.")
     parser.add_argument('-p', '--path', help="The path of the PaaS-HaaS folder.", default="./paas-haas")
     parser.add_argument('-c', '--config', help="The path to the default samconfig.toml", default="./config/sam/samconfig.toml")
+    parser.add_argument('--clean', action=argparse.BooleanOptionalAction)
 
     return parser.parse_args()
 
@@ -84,6 +85,17 @@ def load_template(file_path: str="template.yml") -> PaashaasConfig:
     except:
         print("Failed parsing yaml file, is it the correct format?")
         exit(1)
+
+def clean_remote(path: str):
+    print("Cleaning cloudformation stack...", end="\n\n")
+    
+    return_code: int = os.system(f"cd {path} && sam delete")
+
+    if return_code != 0:
+        print("Something went wrong while cleaning the stack!")
+        exit(1)
+
+    print("\nClean succesful!", end="\n\n")
 
 def build(path: str):
     """
@@ -159,6 +171,9 @@ if __name__ == "__main__":
 
     template: PaashaasConfig = load_template(args.template)
     create_samconfig(args.config, template, args.path)
+
+    if (args.clean):
+        clean_remote(args.path)
 
     build(args.path)
     deploy(template, args.path)
