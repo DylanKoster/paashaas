@@ -19,8 +19,9 @@ def close_expired_orders(orders_table, items_table):
     response = orders_table.scan(FilterExpression=Attr('status').eq('pending') & Attr('expiry_date').lt(current_time))
     for order in response['Items']:
         order = json.loads(json.dumps(order, cls=DecimalEncoder))
+        print(order, flush=True)
         orders_table.update_item(
-            Key={'store_id': order['store_id'], 'id': order['id']},
+            Key={'id': order['id'], 'store_id': order['store_id']},
             UpdateExpression="set #status=:status",
             ExpressionAttributeNames={'#status': 'status'},
             ExpressionAttributeValues={':status': 'cancelled'}

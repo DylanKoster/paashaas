@@ -1,0 +1,38 @@
+# name
+# The name of your project, with any punctuation.
+name: PaaS-HaaS
+
+# version
+# The current version of your project: In the format {major}.{minor}
+version: 1.0
+
+# mail_source_address
+# The address from which the empty item notification email is sent.
+# Note: You need access to this email address! When deploying your app, a
+# verification mail is sent to this address and, if not verified, no
+# notifications will be sent.
+mail_source_address: notifications.paashaas@gmail.com
+
+# mail_dest_address
+# The address to which the empty item notification is sent.
+mail_dest_address: john@doe.com
+
+# empty_item_mail_template:
+# The template of the empty item notification.
+#
+# Sub-fields:
+# empty_item_mail_template.subject: The subject of the email.
+# empty_item_mail_template.html: The HTML content of the email.
+empty_item_mail_template:
+  subject: PaaS-HaaS empty item notification
+  html: "<h1>An item in store {{store_name}} has run out!</h1><p>Item details:<br>Item ID: {{item_id}}<br>Item name: {{item_name}}</p><p>Store details:<br>Store ID: {{store_id}}<br>Store name: {{store_name}}<br>Store location: {{store_location}}</p>"
+
+# stack_name:
+# The name of the deployment stack. This should be identifiable for your project
+# and should only contain letters, numbers, and hyphens (-). A good standard is
+# lowercasing all letters from your project name and substituting spaces with hyphens.
+stack_name: paas-haas
+
+# aws_region:
+# The AWS region name to where your project should be deployed.
+aws_region: eu-west-1
