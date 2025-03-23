@@ -35,4 +35,4 @@ stack_name: paas-haas
 
 # aws_region:
 # The AWS region name to where your project should be deployed.
-aws_region: eu-north-1
+aws_region: eu-west-1
